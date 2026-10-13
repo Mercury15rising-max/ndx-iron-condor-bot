@@ -4,7 +4,7 @@ from decimal import Decimal as D
 
 @dataclass(frozen=True)
 class PaperAccount:
-    balance: D = D("250")
+    balance: D = D("3000")
     daily_loss: D = D("0")
     open_risk: D = D("0")
     open_positions: int = 0
@@ -29,6 +29,7 @@ def assess_spread(*, width, short_bid, long_ask, account=PaperAccount(),
     credit = bid - ask - 2 * slip
     costs = 4 * fee
     risk = (w - credit) * 100 + costs
+    # Fixed ceilings intentionally remain unchanged when starting capital increases.
     cap = min(D("5"), account.balance * D(".02"))
     daily_cap = min(D("10"), account.balance * D(".04"))
     # Buyback at 75% of entry credit targets 25% gross credit capture.
