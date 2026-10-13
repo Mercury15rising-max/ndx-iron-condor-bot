@@ -29,6 +29,16 @@ class Settings:
     zero_dte_entry_start: str = os.getenv("ZERO_DTE_ENTRY_START", "10:00")
     zero_dte_entry_end: str = os.getenv("ZERO_DTE_ENTRY_END", "13:30")
     exit_only_start: str = os.getenv("EXIT_ONLY_START", "15:30")
+    max_bid_ask_pct: float = float(os.getenv("MAX_BID_ASK_PCT", "0.20"))
+    min_open_interest: int = int(os.getenv("MIN_OPEN_INTEREST", "50"))
+    min_option_volume: int = int(os.getenv("MIN_OPTION_VOLUME", "10"))
+    min_return_on_risk: float = float(os.getenv("MIN_RETURN_ON_RISK", "0.10"))
+    min_credit_to_width: float = float(os.getenv("MIN_CREDIT_TO_WIDTH", "0.10"))
+    max_total_open_risk: float = float(os.getenv("MAX_TOTAL_OPEN_RISK", "750"))
+    max_positions_per_family: int = int(os.getenv("MAX_POSITIONS_PER_FAMILY", "1"))
+    loss_cooldown_minutes: int = int(os.getenv("LOSS_COOLDOWN_MINUTES", "60"))
+    event_block_before_minutes: int = int(os.getenv("EVENT_BLOCK_BEFORE_MINUTES", "45"))
+    event_block_after_minutes: int = int(os.getenv("EVENT_BLOCK_AFTER_MINUTES", "30"))
 
 
 SETTINGS = Settings()
