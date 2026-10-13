@@ -21,6 +21,11 @@ class ResearchWatchlistTests(unittest.TestCase):
         roles = {x.symbol: x.role for x in DEFAULT_RESEARCH_WATCHLIST}
         self.assertEqual(roles["META"], "context_only")
 
+    def test_semiconductor_research_feeds_are_context_only(self):
+        roles = {x.symbol: x.role for x in DEFAULT_RESEARCH_WATCHLIST}
+        for symbol in ("AVGO", "AMD", "MU", "TSM", "QCOM", "AMAT", "LRCX", "KLAC"):
+            self.assertEqual(roles[symbol], "context_only")
+
     def test_research_snapshot_is_journaled_separately(self):
         with tempfile.TemporaryDirectory() as tmp:
             journal = PaperJournal(f"{tmp}/journal.jsonl")
