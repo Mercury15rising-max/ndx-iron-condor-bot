@@ -13,7 +13,7 @@ except ImportError:
 
 
 
-def evaluate(legs, now, fee=1.0, slippage=0.1):
+def evaluate(legs, now, fee=1.0, slippage=0.1, overnight_test=False):
     """Leg order: long put, short put, short call, long call; one lot each.
 
     Prices in index points, costs in dollars. Assumed multiplier: 100.
@@ -60,7 +60,14 @@ def evaluate(legs, now, fee=1.0, slippage=0.1):
     dte = (date.fromisoformat(sp['expiration']) - local.date()).days
     if dte <= 0:
         reasons.append('zero_dte_or_expired')
-    if local.weekday() >= 5 or not '10:00' <= local.strftime('%H:%M') < '14:30':
+    daytime = local.weekday() < 5 and '10:00' <= local.strftime('%H:%M') < '14:30'
+    if overnight_test:
+        # One dated research window, not general exchange-calendar support.
+        allowed = (sp['symbol'] == 'SPXW' and local.date().isoformat() == '2026-10-13'
+                   and '20:15' <= local.strftime('%H:%M') < '20:45')
+    else:
+        allowed = daytime
+    if not allowed:
         reasons.append('outside_entry_window')
     width = max(sp['strike'] - lp['strike'], lc['strike'] - sc['strike'])
     mid_credit = sum((q['bid'] + q['ask']) / 2 * sign for q, sign in zip(legs, [-1, 1, 1, -1]))
@@ -90,7 +97,7 @@ def evaluate(legs, now, fee=1.0, slippage=0.1):
                 account_state_checked=False, production_gates_checked=False)
 
 
-def compare(quotes, now, widths=(25, 50, 100), fee=1.0, slippage=.1):
+def compare(quotes, now, widths=(25, 50, 100), fee=1.0, slippage=.1, overnight_test=False):
     """Compare supplied snapshots only; never invent missing wings or fills."""
     groups = {}
     for q in quotes:
@@ -121,7 +128,7 @@ def compare(quotes, now, widths=(25, 50, 100), fee=1.0, slippage=.1):
                     results.append(dict(symbol=symbol, expiration=expiry, short_strikes=[p['strike'], c['strike']],
                                         width=w, status='rejected', reasons=['missing_exact_wings']))
                 else:
-                    results.append(evaluate([lp, p, c, lc], now, fee, slippage))
+                    results.append(evaluate([lp, p, c, lc], now, fee, slippage, overnight_test))
     return sorted(results, key=lambda r: (r['status'] != 'research_candidate', -(r.get('max_profit_after_costs', 0) / max(r.get('max_loss_after_costs', 1), 1))))
 
 
