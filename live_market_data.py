@@ -77,6 +77,25 @@ class RobinhoodMarketDataProvider(MarketDataProvider):
                     bid=float(quote["bid_price"]),
                     ask=float(quote["ask_price"]),
                     delta=float(quote["delta"]),
+                    implied_volatility=(
+                        float(quote["implied_volatility"])
+                        if quote.get("implied_volatility") not in (None, "")
+                        else None
+                    ),
+                    open_interest=(
+                        int(float(quote["open_interest"]))
+                        if quote.get("open_interest") not in (None, "")
+                        else None
+                    ),
+                    volume=(
+                        int(float(quote["volume"]))
+                        if quote.get("volume") not in (None, "")
+                        else None
+                    ),
+                    quote_timestamp=(
+                        str(quote.get("updated_at") or quote.get("timestamp") or "")
+                        or None
+                    ),
                 )
             )
 
