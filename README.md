@@ -61,3 +61,14 @@ Robinhood documents support for external-agent trading through its Trading MCP, 
 7. Robinhood MCP multi-leg schema verification
 8. Paper trading against live quotes
 9. Controlled live rollout
+
+
+## Research context feeds
+
+The bot keeps market-context research separate from strategy P&L.
+
+Current research-only feed:
+- **SOXX** — semiconductor ETF options/market context
+
+SOXX is intentionally excluded from NDX/SPX/XSP index performance statistics for now. The bot can journal SOXX context such as implied volatility, skew, option liquidity, volume, and open interest, then test whether those features improve later index-strategy decisions. Robinhood MCP currently exposes an active SOXX option chain, so this research feed can be populated from the same market-data integration.
+
