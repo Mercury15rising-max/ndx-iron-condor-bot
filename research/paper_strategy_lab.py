@@ -22,7 +22,7 @@ def evaluate(legs, now, fee=1.0, slippage=0.1):
     reasons = []
     if now.tzinfo is None:
         raise ValueError('now must include a timezone')
-    if fee < 0 or slippage < 0:
+    if any(not math.isfinite(float(v)) or v < 0 for v in (fee, slippage)):
         raise ValueError('cost assumptions cannot be negative')
     if len(legs) != 4:
         raise ValueError('four legs required')
@@ -52,9 +52,9 @@ def evaluate(legs, now, fee=1.0, slippage=0.1):
         mid = (q['ask'] + q['bid']) / 2
         if q['bid'] < .1 or q['ask'] - q['bid'] > 2.5 or mid <= 0 or (q['ask'] - q['bid']) / mid > .2:
             reasons.append('spread_or_bid_limit')
-        if q.get('open_interest') is None or q['open_interest'] < 50:
+        if q.get('open_interest') is None or not math.isfinite(float(q['open_interest'])) or q['open_interest'] < 50:
             reasons.append('open_interest_below_50')
-        if q.get('volume') is None or q['volume'] < 10:
+        if q.get('volume') is None or not math.isfinite(float(q['volume'])) or q['volume'] < 10:
             reasons.append('volume_below_10')
     local = now.astimezone(ZoneInfo('America/New_York'))
     dte = (date.fromisoformat(sp['expiration']) - local.date()).days
