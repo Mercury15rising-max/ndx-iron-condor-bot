@@ -1,0 +1,11 @@
+# Quote-based paper pricing
+
+PricedPaperLedger in paper_pricing.py extends the persistent paper account. enter(id, four_legs, aware_timestamp, fee=1, slippage=.1) checks existing entry evaluation and account limits, then atomically stores a synthetic fill and its four contract identities. mark calculates a conservative liquidation estimate. exit_signal requires explicit positive dollar profit/loss thresholds and returns hold/take_profit/stop_loss without closing. exit explicitly closes the simulation and books net P&L. Reopening the same database preserves positions and pricing assumptions.
+
+Leg order: long put, short put, short call, long call. Buys use ask plus per-leg slippage; sells use bid minus slippage. Standard multiplier 100; one package. Both sides pay four contract fees. Quotes must have positive bid, noncrossed ask, timestamps no older than 30 seconds and at most two seconds ahead, and at least one displayed contract on the required side. The supported-session adapter now preserves bid_size and ask_size; missing size blocks fills. Exits require the identical contract set. Liquidity/entry-time restrictions are not reused to obstruct closing an existing position.
+
+These are conservative assumptions, not guaranteed executable prices. Simultaneous four-leg fills are synthetic: displayed size does not prove package availability. The lifecycle simulator is separate and not yet orchestrated with this pricing engine. No partial-leg pricing, assignment, exchange calendar, broker transport, scheduler, automatic stop execution or live enablement exists. Caller invokes marks/exits during research sessions. Stop signals cannot guarantee a loss cap across gaps.
+
+Synthetic tests use a one-point-wide example with $20 maximum loss, $84 net entry cash and $28 net realized paper profit after changed quotes and $8 total fees, with explicitly zero slippage to isolate the accounting test. This is invented test data, not a discovered opportunity or performance result. The existing search still defaults to 25/50/100-point wings, so it may find no candidates under the $30 cap. No risk limits changed.
+
+All 27 offline tests pass. Fresh market-session quotes are still needed for a real-data trial. Nothing was deployed and no brokerage orders were accessed or submitted.
