@@ -72,3 +72,16 @@ Current research-only feed:
 
 SOXX is intentionally excluded from NDX/SPX/XSP index performance statistics for now. The bot can journal SOXX context such as implied volatility, skew, option liquidity, volume, and open interest, then test whether those features improve later index-strategy decisions. Robinhood MCP currently exposes an active SOXX option chain, so this research feed can be populated from the same market-data integration.
 
+
+
+## Railway automation
+
+The repository includes a fail-closed Railway worker configuration:
+
+- Start command: `python automation_runner.py`
+- Paper mode only
+- Refuses to start when `ROBINHOOD_LIVE_ORDERS=true`
+- Journals a scheduler heartbeat every polling interval
+- Uses the configured Eastern-time entry/monitor/exit windows
+
+Important: the Robinhood Trading MCP connection available inside ChatGPT is not automatically inherited by a Railway container. The deployed worker can prove scheduling, restarts, journaling, and safety now, but unattended live market-data collection requires a separately authenticated Robinhood MCP transport/client inside the Railway service. Do not place Robinhood credentials or OAuth secrets in the repository.
