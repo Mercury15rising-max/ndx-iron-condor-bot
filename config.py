@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class Settings:
     trading_mode: str = os.getenv("TRADING_MODE", "paper")
@@ -18,6 +19,16 @@ class Settings:
     profit_target_pct: float = float(os.getenv("PROFIT_TARGET_PCT", "50"))
     stop_loss_multiple: float = float(os.getenv("STOP_LOSS_MULTIPLE", "2.0"))
     allow_0dte: bool = os.getenv("ALLOW_0DTE", "false").lower() == "true"
-    robinhood_live_orders: bool = os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() == "true"\n    max_quote_age_seconds: int = int(os.getenv("MAX_QUOTE_AGE_SECONDS", "30"))\n    max_consecutive_losses: int = int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2"))\n    enable_spxw_0dte_paper: bool = os.getenv("ENABLE_SPXW_0DTE_PAPER", "false").lower() == "true"
+    robinhood_live_orders: bool = os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() == "true"
+    max_quote_age_seconds: int = int(os.getenv("MAX_QUOTE_AGE_SECONDS", "30"))
+    max_consecutive_losses: int = int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2"))
+    enable_spxw_0dte_paper: bool = os.getenv("ENABLE_SPXW_0DTE_PAPER", "false").lower() == "true"
+    market_timezone: str = os.getenv("MARKET_TIMEZONE", "America/New_York")
+    normal_entry_start: str = os.getenv("NORMAL_ENTRY_START", "10:00")
+    normal_entry_end: str = os.getenv("NORMAL_ENTRY_END", "14:30")
+    zero_dte_entry_start: str = os.getenv("ZERO_DTE_ENTRY_START", "10:00")
+    zero_dte_entry_end: str = os.getenv("ZERO_DTE_ENTRY_END", "13:30")
+    exit_only_start: str = os.getenv("EXIT_ONLY_START", "15:30")
+
 
 SETTINGS = Settings()
