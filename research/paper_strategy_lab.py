@@ -129,6 +129,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('snapshot', help='JSON object with as_of and quotes')
     parser.add_argument('--journal', required=True, help='Append-only research JSONL path')
+    parser.add_argument('--ledger', required=True, help='Persistent paper SQLite account ledger')
     args = parser.parse_args()
     with open(args.snapshot) as f:
         snapshot = json.load(f)
@@ -136,6 +137,12 @@ if __name__ == '__main__':
     if now.tzinfo is None:
         raise ValueError('as_of must include timezone')
     output = compare(snapshot['quotes'], now)
+    try:
+        from .paper_ledger import PaperLedger
+    except ImportError:
+        from paper_ledger import PaperLedger
+    ledger = PaperLedger(args.ledger)
+    output = [ledger.gate(result, snapshot['as_of']) for result in output]
     with open(args.journal, 'a') as f:
         for result in output:
             f.write(json.dumps(result, allow_nan=False) + '\n')
