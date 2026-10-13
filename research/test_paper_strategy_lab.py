@@ -16,7 +16,10 @@ class Tests(unittest.TestCase):
         self.assertAlmostEqual(r['conservative_credit_points'],1.2)
         self.assertEqual(r['max_loss_after_costs'],388)
         self.assertFalse(r['filled'])
-        self.assertEqual(r['status'],'research_candidate')
+        self.assertEqual(r['status'],'rejected')
+        self.assertIn('per_trade_risk',r['reasons'])
+        self.assertEqual(r['risk_cap'],5)
+        self.assertEqual(r['paper_balance'],3000)
 
     def test_rejects_stale_and_liquidity(self):
         q=fixture(); q[0]['quote_timestamp']='2026-10-13T15:59:00Z';q[0]['volume']=0
@@ -40,6 +43,6 @@ class Tests(unittest.TestCase):
         q=fixture();q[1]['strike']=100;q[2]['strike']=100
         r=evaluate(q,NOW)
         self.assertEqual(r['strategy'],'iron_butterfly')
-        self.assertIn('risk_limit_500',r['reasons'])
+        self.assertIn('per_trade_risk',r['reasons'])
 
 if __name__ == '__main__':unittest.main()
