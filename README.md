@@ -85,3 +85,9 @@ The repository includes a fail-closed Railway worker configuration:
 - Uses the configured Eastern-time entry/monitor/exit windows
 
 Important: the Robinhood Trading MCP connection available inside ChatGPT is not automatically inherited by a Railway container. The deployed worker can prove scheduling, restarts, journaling, and safety now, but unattended live market-data collection requires a separately authenticated Robinhood MCP transport/client inside the Railway service. Do not place Robinhood credentials or OAuth secrets in the repository.
+
+
+### Additional research context
+
+- **META** — mega-cap tech options context for NDX/QQQ regime, IV, skew, volume, open interest, and event-volatility research.
+- META remains **context-only** and is excluded from index-strategy performance statistics and live trade targeting.
