@@ -41,7 +41,8 @@ def make_snapshot(contracts, response):
         if result['bid'] <= 0 or result['ask'] < result['bid']:
             raise ValueError('missing or crossed market')
         result.update(instrument_id=key, quote_timestamp=q['updated_at'],
-                      volume=q['volume'], open_interest=q['open_interest'])
+                      volume=q['volume'], open_interest=q['open_interest'],
+                      bid_size=q.get('bid_size'), ask_size=q.get('ask_size'))
         quotes.append(result)
     if not quotes or seen != set(metadata):
         raise ValueError('incomplete quote set')
