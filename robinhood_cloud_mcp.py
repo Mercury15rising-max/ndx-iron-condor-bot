@@ -35,7 +35,12 @@ class JsonTokenStorage:
         self._write(data)
 
     async def get_client_info(self) -> OAuthClientInformationFull | None:
-        data = self._read().get("client_info")
+        stored = self._read()
+        data = stored.get("client_info")
+        # Re-register an unauthenticated client created with the old scope.
+        # Preserve any existing tokens and the stored file.
+        if data and data.get("scope") == "user" and not stored.get("tokens"):
+            return None
         return OAuthClientInformationFull.model_validate(data) if data else None
 
     async def set_client_info(self, client_info: OAuthClientInformationFull) -> None:
@@ -95,7 +100,8 @@ class RobinhoodCloudMCP:
                 redirect_uris=[AnyUrl(self.redirect_uri)],
                 grant_types=["authorization_code", "refresh_token"],
                 response_types=["code"],
-                scope="user",
+                scope="internal",
+                token_endpoint_auth_method="none",
             ),
             storage=self.storage,
             redirect_handler=self._redirect_handler,
