@@ -5,9 +5,11 @@ CORRELATION_FAMILY = {
     "NDX": "tech_index",
     "NDXP": "tech_index",
     "SOXX": "tech_index",
+    "QQQ": "tech_index",
     "SPX": "broad_index",
     "SPXW": "broad_index",
     "XSP": "broad_index",
+    "SPXL": "broad_index",
 }
 
 
