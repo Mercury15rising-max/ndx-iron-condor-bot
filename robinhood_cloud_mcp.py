@@ -81,6 +81,18 @@ class RobinhoodCloudMCP:
                 "configured_callback_registered": self.redirect_uri in registered_redirects,
                 "request_callback_matches_config": query.get("redirect_uri") == [self.redirect_uri],
                 "stored_scope_internal": info.get("scope") == "internal",
+                "stored_scope_status": (
+                    "missing" if "scope" not in info else
+                    "null" if info["scope"] is None else
+                    "empty" if info["scope"] == "" else
+                    "internal" if info["scope"] == "internal" else
+                    "legacy_user" if info["scope"] == "user" else
+                    "other"
+                ),
+                "stored_scope_includes_internal": (
+                    isinstance(info.get("scope"), str)
+                    and "internal" in info["scope"].split()
+                ),
                 "stored_auth_method_none": info.get("token_endpoint_auth_method") == "none",
                 "stored_authorization_code_grant": "authorization_code" in (info.get("grant_types") or []),
                 "stored_code_response_type": "code" in (info.get("response_types") or []),
