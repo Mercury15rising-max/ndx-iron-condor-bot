@@ -30,3 +30,17 @@ class IronCondor:
     max_loss: float
     lower_breakeven: float
     upper_breakeven: float
+
+
+@dataclass(frozen=True)
+class IronButterfly:
+    expiration: date
+    long_put: OptionQuote
+    short_put: OptionQuote
+    short_call: OptionQuote
+    long_call: OptionQuote
+    net_credit: float
+    max_profit: float
+    max_loss: float
+    lower_breakeven: float
+    upper_breakeven: float
