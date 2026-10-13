@@ -1,4 +1,5 @@
 import json
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,8 +22,9 @@ class PaperTradeRecord:
 class PaperJournal:
     """Append-only JSONL journal for scans, paper entries, exits, and rejections."""
 
-    def __init__(self, path: str = "data/paper_trades.jsonl"):
-        self.path = Path(path)
+    def __init__(self, path: str | None = None):
+        resolved = path or os.getenv("PAPER_JOURNAL_PATH", "data/paper_trades.jsonl")
+        self.path = Path(resolved)
 
     def write(self, record: PaperTradeRecord) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
