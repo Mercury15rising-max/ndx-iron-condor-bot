@@ -40,4 +40,22 @@ DEFAULT_RESEARCH_WATCHLIST = (
             "context/stress feed; keep separate from SPX/XSP performance statistics."
         ),
     ),
+    ResearchAsset(
+        symbol="CRDO",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "High-beta semiconductor/networking equity. Track IV, skew, volume, "
+            "open interest, and directional moves as context for NDX/NDXP."
+        ),
+    ),
+    ResearchAsset(
+        symbol="SITM",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Semiconductor timing equity with a thinner options calendar. Use as "
+            "research context only and do not mix with index strategy performance."
+        ),
+    ),
 )
