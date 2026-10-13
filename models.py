@@ -48,3 +48,16 @@ class IronButterfly:
     max_loss: float
     lower_breakeven: float
     upper_breakeven: float
+
+
+@dataclass(frozen=True)
+class VerticalSpread:
+    expiration: date
+    option_type: OptionType
+    direction: Literal["bullish", "bearish"]
+    premium_type: Literal["credit", "debit"]
+    long_option: OptionQuote
+    short_option: OptionQuote
+    net_premium: float
+    max_profit: float
+    max_loss: float
