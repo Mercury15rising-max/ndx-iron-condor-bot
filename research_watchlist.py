@@ -67,4 +67,68 @@ DEFAULT_RESEARCH_WATCHLIST = (
             "volume, open interest, and event volatility as context for QQQ/NDX."
         ),
     ),
+    ResearchAsset(
+        symbol="AVGO",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Broadcom mega-cap semiconductor/AI infrastructure context. Track IV, skew, volume, OI, and event volatility for NDX/QQQ regime confirmation."
+        ),
+    ),
+    ResearchAsset(
+        symbol="AMD",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "High-beta semiconductor context. Track IV, skew, volume, OI, and directional moves as a leading risk-on/risk-off input for NDX."
+        ),
+    ),
+    ResearchAsset(
+        symbol="MU",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Memory-cycle semiconductor context. Track options activity as a demand-cycle and volatility confirmation signal for NDX/QQQ."
+        ),
+    ),
+    ResearchAsset(
+        symbol="TSM",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Global semiconductor foundry context. Track IV, skew, volume, OI, and event volatility for semiconductor-cycle confirmation."
+        ),
+    ),
+    ResearchAsset(
+        symbol="QCOM",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Mobile/AI semiconductor demand context. Use options activity as a secondary confirmation signal for tech regime detection."
+        ),
+    ),
+    ResearchAsset(
+        symbol="AMAT",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Semiconductor equipment/capex context. Track options activity as a fab-investment and cycle confirmation signal."
+        ),
+    ),
+    ResearchAsset(
+        symbol="LRCX",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Semiconductor equipment context. Track IV, skew, volume, OI, and event volatility as a capex-cycle confirmation input."
+        ),
+    ),
+    ResearchAsset(
+        symbol="KLAC",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "Semiconductor process-control/equipment context. Use options activity as a lower-weight capex-cycle confirmation signal."
+        ),
+    ),
 )
