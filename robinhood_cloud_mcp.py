@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import httpx2
+import httpx
 from pydantic import AnyUrl
 
 from mcp import ClientSession
@@ -107,9 +107,9 @@ class RobinhoodCloudMCP:
         self.last_error = None
         try:
             auth = self._provider()
-            async with httpx2.AsyncClient(
+            async with httpx.AsyncClient(
                 auth=auth,
-                timeout=httpx2.Timeout(30.0, read=300.0),
+                timeout=httpx.Timeout(30.0, read=300.0),
             ) as http_client:
                 async with streamable_http_client(
                     self.server_url,
@@ -126,9 +126,9 @@ class RobinhoodCloudMCP:
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         auth = self._provider()
-        async with httpx2.AsyncClient(
+        async with httpx.AsyncClient(
             auth=auth,
-            timeout=httpx2.Timeout(30.0, read=300.0),
+            timeout=httpx.Timeout(30.0, read=300.0),
         ) as http_client:
             async with streamable_http_client(
                 self.server_url,
