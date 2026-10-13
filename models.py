@@ -13,6 +13,10 @@ class OptionQuote:
     bid: float
     ask: float
     delta: float
+    implied_volatility: float | None = None
+    open_interest: int | None = None
+    volume: int | None = None
+    quote_timestamp: str | None = None
 
     @property
     def mid(self) -> float:
