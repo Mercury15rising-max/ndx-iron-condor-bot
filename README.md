@@ -91,3 +91,12 @@ Important: the Robinhood Trading MCP connection available inside ChatGPT is not 
 
 - **META** — mega-cap tech options context for NDX/QQQ regime, IV, skew, volume, open interest, and event-volatility research.
 - META remains **context-only** and is excluded from index-strategy performance statistics and live trade targeting.
+
+
+### Expanded semiconductor research context
+
+The research-only watchlist now also includes:
+- **AVGO, AMD, MU, TSM, QCOM** — semiconductor leadership and demand-cycle context.
+- **AMAT, LRCX, KLAC** — semiconductor equipment/capex-cycle confirmation.
+
+These symbols remain **context-only**. They are excluded from index-strategy P&L and are not live trade targets. Their purpose is to improve NDX/QQQ regime detection using IV, skew, volume, open interest, and event-volatility features.
