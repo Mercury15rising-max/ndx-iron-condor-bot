@@ -6,6 +6,12 @@ import math
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
+try:
+    from .research_risk_policy import STARTING_BALANCE, risk_limits
+except ImportError:
+    from research_risk_policy import STARTING_BALANCE, risk_limits
+
+
 
 def evaluate(legs, now, fee=1.0, slippage=0.1):
     """Leg order: long put, short put, short call, long call; one lot each.
@@ -67,8 +73,9 @@ def evaluate(legs, now, fee=1.0, slippage=0.1):
         reasons.append('inconsistent_package_pricing')
     if credit <= 0 or profit <= 0:
         reasons.append('nonpositive_credit_after_costs')
-    if loss > 500 or loss <= 0:
-        reasons.append('risk_limit_500')
+    cap, daily_cap = risk_limits(STARTING_BALANCE)
+    if loss > float(cap) or loss <= 0:
+        reasons.append('per_trade_risk')
     if credit / width < .1 or (loss > 0 and profit / loss < .1):
         reasons.append('insufficient_return_on_risk')
     return dict(strategy='iron_butterfly' if sp['strike'] == sc['strike'] else 'iron_condor',
@@ -78,7 +85,9 @@ def evaluate(legs, now, fee=1.0, slippage=0.1):
                 max_profit_after_costs=round(profit, 2), max_loss_after_costs=round(loss, 2),
                 reasons=sorted(set(reasons)), status='rejected' if reasons else 'research_candidate',
                 filled=False, fee_per_contract=fee, slippage_points_per_leg=slippage,
-                production_gates_checked=False)
+                risk_cap=float(cap), daily_loss_cap=float(daily_cap),
+                paper_balance=float(STARTING_BALANCE),
+                account_state_checked=False, production_gates_checked=False)
 
 
 def compare(quotes, now, widths=(25, 50, 100), fee=1.0, slippage=.1):
