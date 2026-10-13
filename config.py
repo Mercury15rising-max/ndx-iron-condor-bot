@@ -18,6 +18,6 @@ class Settings:
     profit_target_pct: float = float(os.getenv("PROFIT_TARGET_PCT", "50"))
     stop_loss_multiple: float = float(os.getenv("STOP_LOSS_MULTIPLE", "2.0"))
     allow_0dte: bool = os.getenv("ALLOW_0DTE", "false").lower() == "true"
-    robinhood_live_orders: bool = os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() == "true"
+    robinhood_live_orders: bool = os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() == "true"\n    max_quote_age_seconds: int = int(os.getenv("MAX_QUOTE_AGE_SECONDS", "30"))\n    max_consecutive_losses: int = int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2"))\n    enable_spxw_0dte_paper: bool = os.getenv("ENABLE_SPXW_0DTE_PAPER", "false").lower() == "true"
 
 SETTINGS = Settings()
