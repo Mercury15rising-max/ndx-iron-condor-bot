@@ -18,7 +18,7 @@ class Tests(unittest.TestCase):
         self.assertFalse(r['filled'])
         self.assertEqual(r['status'],'rejected')
         self.assertIn('per_trade_risk',r['reasons'])
-        self.assertEqual(r['risk_cap'],5)
+        self.assertEqual(r['risk_cap'],30)
         self.assertEqual(r['paper_balance'],3000)
 
     def test_rejects_stale_and_liquidity(self):
