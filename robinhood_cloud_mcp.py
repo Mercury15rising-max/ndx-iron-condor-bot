@@ -2,6 +2,7 @@ import asyncio
 import json
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 import httpx2 as httpx
 from pydantic import AnyUrl
@@ -67,6 +68,27 @@ class RobinhoodCloudMCP:
         self.tool_names: list[str] = []
 
     async def _redirect_handler(self, authorization_url: str) -> None:
+        # Log only comparisons, never tokens, codes, state, or full URLs.
+        try:
+            stored = self.storage._read()
+            info = stored.get("client_info") or {}
+            query = parse_qs(urlsplit(authorization_url).query)
+            registered_redirects = info.get("redirect_uris") or []
+            checks = {
+                "stored_client_present": bool(info.get("client_id")),
+                "client_id_matches_request": bool(info.get("client_id"))
+                and query.get("client_id") == [info["client_id"]],
+                "configured_callback_registered": self.redirect_uri in registered_redirects,
+                "request_callback_matches_config": query.get("redirect_uri") == [self.redirect_uri],
+                "stored_scope_internal": info.get("scope") == "internal",
+                "stored_auth_method_none": info.get("token_endpoint_auth_method") == "none",
+                "stored_authorization_code_grant": "authorization_code" in (info.get("grant_types") or []),
+                "stored_code_response_type": "code" in (info.get("response_types") or []),
+                "tokens_present": bool(stored.get("tokens")),
+            }
+            print("OAUTH_REGISTRATION_CHECK " + json.dumps(checks, sort_keys=True), flush=True)
+        except Exception:
+            print("OAUTH_REGISTRATION_CHECK unavailable", flush=True)
         self.authorization_url = authorization_url
 
     async def _callback_handler(self) -> AuthorizationCodeResult:
