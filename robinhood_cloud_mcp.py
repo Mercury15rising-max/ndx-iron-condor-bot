@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 from pydantic import AnyUrl
 
 from mcp import ClientSession
