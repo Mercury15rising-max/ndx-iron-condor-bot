@@ -131,4 +131,28 @@ DEFAULT_RESEARCH_WATCHLIST = (
             "Semiconductor process-control/equipment context. Use options activity as a lower-weight capex-cycle confirmation signal."
         ),
     ),
+    ResearchAsset(
+        symbol="JPM",
+        asset_type="equity",
+        role="context_only",
+        notes="Banking-sector research benchmark. Compare trends, realized volatility, IV and earnings-related moves with the technology watchlist; incremental value remains untested.",
+    ),
+    ResearchAsset(
+        symbol="XOM",
+        asset_type="equity",
+        role="context_only",
+        notes="Energy-sector research benchmark. Compare trends, realized volatility and options activity with technology; do not assume low correlation or predictive value.",
+    ),
+    ResearchAsset(
+        symbol="SPY",
+        asset_type="ETF",
+        role="context_only",
+        notes="Unleveraged S&P 500 research benchmark. Compare broad-market trends and options context with QQQ and leveraged SPXL; keep product performance separate.",
+    ),
+    ResearchAsset(
+        symbol="IWM",
+        asset_type="ETF",
+        role="context_only",
+        notes="Russell 2000 small-cap research benchmark. Compare small-cap participation, trends and options context with large-cap benchmarks; incremental value remains untested.",
+    ),
 )
