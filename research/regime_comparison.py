@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from trend_features import analyze
 from paper_strategy_lab import compare
 from paper_ledger import PaperLedger
+from research_context import lookup
 
 
 def context(entry, session, as_of):
@@ -45,7 +46,7 @@ def variants(candidate, feature):
             for name, passed in checks.items()}
 
 
-def run(snapshot, histories, session, ledger):
+def run(snapshot, histories, session, ledger, research_context=None):
     if histories.get('adjustment_type') != 'split':
         raise ValueError('Explicit split-adjusted histories required')
     now = datetime.fromisoformat(snapshot['as_of'].replace('Z', '+00:00'))
@@ -64,7 +65,8 @@ def run(snapshot, histories, session, ledger):
     for candidate in compare(snapshot['quotes'], now):
         row = ledger.gate(candidate, snapshot['as_of'])
         feature = features.get(row['symbol'])
-        row.update(market_context=feature, shadow_variants=variants(row, feature),
+        long_context = lookup(research_context, row['symbol'], session) if research_context else {'status': 'not_supplied'}
+        row.update(long_term_research=long_context, market_context=feature, shadow_variants=variants(row, feature),
                    experiment_version='regime_v1', filled=False)
         output.append(row)
     return output
@@ -77,10 +79,11 @@ if __name__ == '__main__':
     p.add_argument('--completed-session', required=True)
     p.add_argument('--ledger', required=True)
     p.add_argument('--journal', required=True)
+    p.add_argument('--research-context', default=str(Path(__file__).with_name('market_200_sessions.json')))
     a = p.parse_args()
     rows = run(json.loads(Path(a.snapshot).read_text()),
                json.loads(Path(a.histories).read_text()), a.completed_session,
-               PaperLedger(a.ledger))
+               PaperLedger(a.ledger), json.loads(Path(a.research_context).read_text()))
     with open(a.journal, 'a') as stream:
         for row in rows:
             stream.write(json.dumps(row, allow_nan=False) + '\n')
