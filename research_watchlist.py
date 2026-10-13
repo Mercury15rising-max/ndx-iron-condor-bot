@@ -58,4 +58,13 @@ DEFAULT_RESEARCH_WATCHLIST = (
             "research context only and do not mix with index strategy performance."
         ),
     ),
+    ResearchAsset(
+        symbol="META",
+        asset_type="equity",
+        role="context_only",
+        notes=(
+            "High-value mega-cap tech options context. Track IV, put/call skew, "
+            "volume, open interest, and event volatility as context for QQQ/NDX."
+        ),
+    ),
 )
