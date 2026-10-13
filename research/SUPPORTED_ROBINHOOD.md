@@ -19,7 +19,7 @@ original quote timestamps. The analyzer checks freshness against capture time,
 so stale or after-hours data cannot become fresh entry candidates through import.
 It reports hypothetical candidates, not fills or profitability.
 
-The condor/butterfly lab still has its own $500 experimental risk ceiling; it is
+The condor/butterfly lab still has its own $5 experimental risk ceiling; it is
 NOT the $3000 account's small-account gate ($5 per trade, $10 daily). Neither
 research module authorizes live orders. Reconcile all risk gates before any live
 workflow. The user's stated capital is a planning value, not verified buying power.
@@ -27,3 +27,6 @@ workflow. The user's stated capital is a planning value, not verified buying pow
 No scheduler or autonomous trading is supplied by this session workflow. The
 Railway OAuth app is not modified by this branch. Any future trade needs a separate
 explicit user instruction and the supported platform's actual trading capabilities.
+ 
+
+Risk policy update: Both paper modules use research_risk_policy.py ($3000 starting balance, $5 per-trade and $10 daily ceilings). The snapshot lab reports limits but does not track cumulative daily losses or open positions; account_state_checked remains false. It must not authorize execution. Four-leg round-trip assumed fees alone are $8, so no such candidate can meet the $5 ceiling with default fees. Earlier comparisons are historical experiment results, not current approvals.
