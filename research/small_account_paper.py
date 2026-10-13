@@ -2,9 +2,15 @@
 from dataclasses import dataclass
 from decimal import Decimal as D
 
+try:
+    from .research_risk_policy import STARTING_BALANCE, risk_limits
+except ImportError:
+    from research_risk_policy import STARTING_BALANCE, risk_limits
+
+
 @dataclass(frozen=True)
 class PaperAccount:
-    balance: D = D("3000")
+    balance: D = STARTING_BALANCE
     daily_loss: D = D("0")
     open_risk: D = D("0")
     open_positions: int = 0
@@ -30,8 +36,7 @@ def assess_spread(*, width, short_bid, long_ask, account=PaperAccount(),
     costs = 4 * fee
     risk = (w - credit) * 100 + costs
     # Fixed ceilings intentionally remain unchanged when starting capital increases.
-    cap = min(D("5"), account.balance * D(".02"))
-    daily_cap = min(D("10"), account.balance * D(".04"))
+    cap, daily_cap = risk_limits(account.balance)
     # Buyback at 75% of entry credit targets 25% gross credit capture.
     target_debit = credit * D(".75")
     target_net = (credit-target_debit-2*slip)*100-costs
