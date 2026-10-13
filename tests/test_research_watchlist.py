@@ -12,6 +12,11 @@ class ResearchWatchlistTests(unittest.TestCase):
         self.assertEqual(soxx.asset_type, "ETF")
         self.assertEqual(soxx.role, "context_only")
 
+    def test_crdo_and_sitm_are_context_only(self):
+        roles = {x.symbol: x.role for x in DEFAULT_RESEARCH_WATCHLIST}
+        self.assertEqual(roles["CRDO"], "context_only")
+        self.assertEqual(roles["SITM"], "context_only")
+
     def test_research_snapshot_is_journaled_separately(self):
         with tempfile.TemporaryDirectory() as tmp:
             journal = PaperJournal(f"{tmp}/journal.jsonl")
