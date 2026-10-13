@@ -1,0 +1,1043 @@
+{
+  "methodology": "200 observed regular trading sessions, first open to last bar close; split-adjusted price returns exclude dividends. Drawdown uses first open then daily closes, not intraday extremes. Volatility uses sample standard deviation of daily log returns; annualized uses sqrt(252). Correlations use 199 aligned close-to-close log returns. No option returns or fills. Excludes Oct13 and interpolated bars. Prior stored provider history reused for 14 names; four histories fetched Oct13. Session dates aligned across all assets; exchange calendar completeness not independently verified. These are in-sample descriptive features, not forecasts or proof of strategy profitability.",
+  "source": "Robinhood historical equity data",
+  "results": [
+    {
+      "symbol": "SOXX",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 78.64227282414467,
+      "close_sample_drawdown_pct": -29.008717424161468,
+      "rv20_daily_pct": 2.0370834878392063,
+      "rv60_daily_pct": 2.74873653589304,
+      "rv199_annualized_pct": 48.387895484826224,
+      "above_sma200_pct": 17.579170370351193,
+      "regime": "bullish",
+      "sma200": 463.38989999999995,
+      "correlation_to_SPY": 0.6988805197830558
+    },
+    {
+      "symbol": "QQQ",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 19.944050547436444,
+      "close_sample_drawdown_pct": -11.834749376204169,
+      "rv20_daily_pct": 0.96011224225993,
+      "rv60_daily_pct": 1.1231348413923326,
+      "rv199_annualized_pct": 20.164658287399888,
+      "above_sma200_pct": 10.886138600984774,
+      "regime": "bullish",
+      "sma200": 672.7982499999999,
+      "correlation_to_SPY": 0.9173452385308327
+    },
+    {
+      "symbol": "SPXL",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 31.01154286721297,
+      "close_sample_drawdown_pct": -26.940247252747263,
+      "rv20_daily_pct": 1.8329763017990175,
+      "rv60_daily_pct": 2.035599767193721,
+      "rv199_annualized_pct": 38.667626712484754,
+      "above_sma200_pct": 18.31492052326411,
+      "regime": "bullish",
+      "sma200": 251.3377,
+      "correlation_to_SPY": 0.9990237859788056
+    },
+    {
+      "symbol": "CRDO",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 36.625850340136054,
+      "close_sample_drawdown_pct": -50.38675128917096,
+      "rv20_daily_pct": 4.6122568900732706,
+      "rv60_daily_pct": 6.205048487513902,
+      "rv199_annualized_pct": 97.13659069010015,
+      "above_sma200_pct": 11.903307608034751,
+      "regime": "bullish",
+      "sma200": 179.47637500000002,
+      "correlation_to_SPY": 0.3933341912173745
+    },
+    {
+      "symbol": "SITM",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 49.30724706005607,
+      "close_sample_drawdown_pct": -48.73319430270222,
+      "rv20_daily_pct": 4.122005259057738,
+      "rv60_daily_pct": 5.796957301303173,
+      "rv199_annualized_pct": 85.86326585751772,
+      "above_sma200_pct": 6.075712663340638,
+      "regime": "bullish",
+      "sma200": 537.418025,
+      "correlation_to_SPY": 0.4511089970985113
+    },
+    {
+      "symbol": "META",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 12.139827630446941,
+      "close_sample_drawdown_pct": -28.794137963727962,
+      "rv20_daily_pct": 3.313691223250702,
+      "rv60_daily_pct": 2.8581403222439694,
+      "rv199_annualized_pct": 43.19662549362911,
+      "above_sma200_pct": 17.832161649053944,
+      "regime": "bullish",
+      "sma200": 630.52395,
+      "correlation_to_SPY": 0.434498607138826
+    },
+    {
+      "symbol": "AVGO",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 1.1534568059654804,
+      "close_sample_drawdown_pct": -29.54918288099342,
+      "rv20_daily_pct": 2.1544469616162423,
+      "rv60_daily_pct": 2.3779324106010824,
+      "rv199_annualized_pct": 44.51182154112744,
+      "above_sma200_pct": -3.6875428729989834,
+      "regime": "bearish",
+      "sma200": 368.31165,
+      "correlation_to_SPY": 0.5774934106702939
+    },
+    {
+      "symbol": "AMD",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 176.41641082891434,
+      "close_sample_drawdown_pct": -26.46719038817006,
+      "rv20_daily_pct": 3.1699742727604745,
+      "rv60_daily_pct": 3.9397016324636587,
+      "rv199_annualized_pct": 69.78229754837645,
+      "above_sma200_pct": 53.46488148560638,
+      "regime": "bullish",
+      "sma200": 387.215625,
+      "correlation_to_SPY": 0.5787842744063956
+    },
+    {
+      "symbol": "MU",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 255.76978417266187,
+      "close_sample_drawdown_pct": -39.104782623026466,
+      "rv20_daily_pct": 2.8996892915690013,
+      "rv60_daily_pct": 4.571958612184613,
+      "rv199_annualized_pct": 83.25062290979751,
+      "above_sma200_pct": 40.24072999650228,
+      "regime": "bullish",
+      "sma200": 705.244475,
+      "correlation_to_SPY": 0.4914212263889359
+    },
+    {
+      "symbol": "TSM",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 49.24094847853833,
+      "close_sample_drawdown_pct": -21.54657955901752,
+      "rv20_daily_pct": 1.7345477765288955,
+      "rv60_daily_pct": 2.106713824233842,
+      "rv199_annualized_pct": 41.008499277149284,
+      "above_sma200_pct": 13.208042293209976,
+      "regime": "bullish",
+      "sma200": 392.50745,
+      "correlation_to_SPY": 0.6798737070400749
+    },
+    {
+      "symbol": "QCOM",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": -0.34849177330894543,
+      "close_sample_drawdown_pct": -41.1959206437734,
+      "rv20_daily_pct": 3.503903424317855,
+      "rv60_daily_pct": 2.834308866477434,
+      "rv199_annualized_pct": 57.032919768227245,
+      "above_sma200_pct": 3.000343373844361,
+      "regime": "bullish",
+      "sma200": 169.34895,
+      "correlation_to_SPY": 0.47565775143529376
+    },
+    {
+      "symbol": "AMAT",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 91.1885639626484,
+      "close_sample_drawdown_pct": -42.54771784232365,
+      "rv20_daily_pct": 2.464023871010943,
+      "rv60_daily_pct": 3.8232594965855835,
+      "rv199_annualized_pct": 63.0539318068208,
+      "above_sma200_pct": 14.241988402554174,
+      "regime": "bullish",
+      "sma200": 435.50537499999996,
+      "correlation_to_SPY": 0.5615612610712543
+    },
+    {
+      "symbol": "LRCX",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 76.62900833048043,
+      "close_sample_drawdown_pct": -41.76493665335887,
+      "rv20_daily_pct": 2.680756620905041,
+      "rv60_daily_pct": 4.101346415432664,
+      "rv199_annualized_pct": 67.44406711422663,
+      "above_sma200_pct": 10.624623877708261,
+      "regime": "bullish",
+      "sma200": 279.8292,
+      "correlation_to_SPY": 0.6105991841160943
+    },
+    {
+      "symbol": "KLAC",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 49.77390537112607,
+      "close_sample_drawdown_pct": -44.52951509727884,
+      "rv20_daily_pct": 2.2991868432673708,
+      "rv60_daily_pct": 3.372956289062967,
+      "rv199_annualized_pct": 65.06523187894823,
+      "above_sma200_pct": 5.60494994596441,
+      "regime": "bullish",
+      "sma200": 180.02944,
+      "correlation_to_SPY": 0.5589152088850144
+    },
+    {
+      "symbol": "SPY",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 13.10415001090195,
+      "close_sample_drawdown_pct": -9.133129160735598,
+      "rv20_daily_pct": 0.6152514687474628,
+      "rv60_daily_pct": 0.682815817128128,
+      "rv199_annualized_pct": 12.903621311259966,
+      "above_sma200_pct": 7.564622754514194,
+      "regime": "bullish",
+      "sma200": 723.3791,
+      "correlation_to_SPY": 1.0
+    },
+    {
+      "symbol": "IWM",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 10.290907647735835,
+      "close_sample_drawdown_pct": -11.186478372067166,
+      "rv20_daily_pct": 0.719367895624501,
+      "rv60_daily_pct": 0.8420153672213363,
+      "rv199_annualized_pct": 17.88802900111632,
+      "above_sma200_pct": 0.2551835339068109,
+      "regime": "bullish",
+      "sma200": 277.19265,
+      "correlation_to_SPY": 0.81448930259283
+    },
+    {
+      "symbol": "JPM",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 2.470573810691512,
+      "close_sample_drawdown_pct": -15.471743223454181,
+      "rv20_daily_pct": 1.0858985989934824,
+      "rv60_daily_pct": 1.0884031278745434,
+      "rv199_annualized_pct": 22.031542264884806,
+      "above_sma200_pct": 3.7625002696490384,
+      "regime": "bullish",
+      "sma200": 322.17805,
+      "correlation_to_SPY": 0.4419396927775336
+    },
+    {
+      "symbol": "XOM",
+      "start": "2025-12-24",
+      "end": "2026-10-12",
+      "sessions": 200,
+      "return_pct": 44.26380625157127,
+      "close_sample_drawdown_pct": -20.65084271301102,
+      "rv20_daily_pct": 1.573751511480645,
+      "rv60_daily_pct": 1.501605404189905,
+      "rv199_annualized_pct": 27.743184907332523,
+      "above_sma200_pct": 14.31550148746281,
+      "regime": "bullish",
+      "sma200": 150.592,
+      "correlation_to_SPY": -0.3605693189280215
+    }
+  ],
+  "correlations": [
+    {
+      "a": "SOXX",
+      "b": "SPXL",
+      "correlation": 0.7015000854066598
+    },
+    {
+      "a": "SOXX",
+      "b": "TSM",
+      "correlation": 0.792399212410111
+    },
+    {
+      "a": "SOXX",
+      "b": "SPY",
+      "correlation": 0.6988805197830558
+    },
+    {
+      "a": "SOXX",
+      "b": "XOM",
+      "correlation": -0.2859324831827046
+    },
+    {
+      "a": "QQQ",
+      "b": "SOXX",
+      "correlation": 0.8695547032348304
+    },
+    {
+      "a": "QQQ",
+      "b": "SPXL",
+      "correlation": 0.9201228917963318
+    },
+    {
+      "a": "QQQ",
+      "b": "SITM",
+      "correlation": 0.5435341806126869
+    },
+    {
+      "a": "QQQ",
+      "b": "TSM",
+      "correlation": 0.7600407710623246
+    },
+    {
+      "a": "QQQ",
+      "b": "SPY",
+      "correlation": 0.9173452385308327
+    },
+    {
+      "a": "QQQ",
+      "b": "XOM",
+      "correlation": -0.3856619062878187
+    },
+    {
+      "a": "SPXL",
+      "b": "TSM",
+      "correlation": 0.6839791725775611
+    },
+    {
+      "a": "SPXL",
+      "b": "SPY",
+      "correlation": 0.9990237859788056
+    },
+    {
+      "a": "SPXL",
+      "b": "XOM",
+      "correlation": -0.35948999348415894
+    },
+    {
+      "a": "CRDO",
+      "b": "SOXX",
+      "correlation": 0.6274683269864711
+    },
+    {
+      "a": "CRDO",
+      "b": "QQQ",
+      "correlation": 0.5314103781695474
+    },
+    {
+      "a": "CRDO",
+      "b": "SPXL",
+      "correlation": 0.39559921413183724
+    },
+    {
+      "a": "CRDO",
+      "b": "SITM",
+      "correlation": 0.42977512017153197
+    },
+    {
+      "a": "CRDO",
+      "b": "META",
+      "correlation": 0.040260782650617416
+    },
+    {
+      "a": "CRDO",
+      "b": "MU",
+      "correlation": 0.46645181423361687
+    },
+    {
+      "a": "CRDO",
+      "b": "TSM",
+      "correlation": 0.48629268304255474
+    },
+    {
+      "a": "CRDO",
+      "b": "QCOM",
+      "correlation": 0.29957977653575457
+    },
+    {
+      "a": "CRDO",
+      "b": "LRCX",
+      "correlation": 0.5440606988443574
+    },
+    {
+      "a": "CRDO",
+      "b": "KLAC",
+      "correlation": 0.4799188386202176
+    },
+    {
+      "a": "CRDO",
+      "b": "SPY",
+      "correlation": 0.3933341912173745
+    },
+    {
+      "a": "CRDO",
+      "b": "IWM",
+      "correlation": 0.38515884881676254
+    },
+    {
+      "a": "CRDO",
+      "b": "JPM",
+      "correlation": 0.04712623066108234
+    },
+    {
+      "a": "CRDO",
+      "b": "XOM",
+      "correlation": -0.22105343244703363
+    },
+    {
+      "a": "SITM",
+      "b": "SOXX",
+      "correlation": 0.6432960715555766
+    },
+    {
+      "a": "SITM",
+      "b": "SPXL",
+      "correlation": 0.4486481782929222
+    },
+    {
+      "a": "SITM",
+      "b": "TSM",
+      "correlation": 0.5216994958165025
+    },
+    {
+      "a": "SITM",
+      "b": "SPY",
+      "correlation": 0.4511089970985113
+    },
+    {
+      "a": "SITM",
+      "b": "XOM",
+      "correlation": -0.17914695418946888
+    },
+    {
+      "a": "META",
+      "b": "SOXX",
+      "correlation": 0.1659039418577561
+    },
+    {
+      "a": "META",
+      "b": "QQQ",
+      "correlation": 0.36755747920887394
+    },
+    {
+      "a": "META",
+      "b": "SPXL",
+      "correlation": 0.4373350591590226
+    },
+    {
+      "a": "META",
+      "b": "SITM",
+      "correlation": 0.1186283059317023
+    },
+    {
+      "a": "META",
+      "b": "MU",
+      "correlation": 0.0559315494733875
+    },
+    {
+      "a": "META",
+      "b": "TSM",
+      "correlation": 0.1844451956726079
+    },
+    {
+      "a": "META",
+      "b": "QCOM",
+      "correlation": 0.16583546249324715
+    },
+    {
+      "a": "META",
+      "b": "SPY",
+      "correlation": 0.434498607138826
+    },
+    {
+      "a": "META",
+      "b": "XOM",
+      "correlation": -0.25374124609911897
+    },
+    {
+      "a": "AVGO",
+      "b": "SOXX",
+      "correlation": 0.6649349187495673
+    },
+    {
+      "a": "AVGO",
+      "b": "QQQ",
+      "correlation": 0.6714903706497024
+    },
+    {
+      "a": "AVGO",
+      "b": "SPXL",
+      "correlation": 0.5808933109366387
+    },
+    {
+      "a": "AVGO",
+      "b": "CRDO",
+      "correlation": 0.49310014281777936
+    },
+    {
+      "a": "AVGO",
+      "b": "SITM",
+      "correlation": 0.4204567609327211
+    },
+    {
+      "a": "AVGO",
+      "b": "META",
+      "correlation": 0.13584956391952027
+    },
+    {
+      "a": "AVGO",
+      "b": "MU",
+      "correlation": 0.4767975074558409
+    },
+    {
+      "a": "AVGO",
+      "b": "TSM",
+      "correlation": 0.5693636271652136
+    },
+    {
+      "a": "AVGO",
+      "b": "QCOM",
+      "correlation": 0.32923827480989215
+    },
+    {
+      "a": "AVGO",
+      "b": "LRCX",
+      "correlation": 0.5567106453836306
+    },
+    {
+      "a": "AVGO",
+      "b": "KLAC",
+      "correlation": 0.48214296911000887
+    },
+    {
+      "a": "AVGO",
+      "b": "SPY",
+      "correlation": 0.5774934106702939
+    },
+    {
+      "a": "AVGO",
+      "b": "IWM",
+      "correlation": 0.407457622239014
+    },
+    {
+      "a": "AVGO",
+      "b": "JPM",
+      "correlation": 0.08367179469070236
+    },
+    {
+      "a": "AVGO",
+      "b": "XOM",
+      "correlation": -0.23776641779766286
+    },
+    {
+      "a": "AMD",
+      "b": "SOXX",
+      "correlation": 0.8129943567809109
+    },
+    {
+      "a": "AMD",
+      "b": "QQQ",
+      "correlation": 0.7376032169018684
+    },
+    {
+      "a": "AMD",
+      "b": "SPXL",
+      "correlation": 0.5793102396886518
+    },
+    {
+      "a": "AMD",
+      "b": "CRDO",
+      "correlation": 0.5213784302056436
+    },
+    {
+      "a": "AMD",
+      "b": "SITM",
+      "correlation": 0.48397783337315753
+    },
+    {
+      "a": "AMD",
+      "b": "META",
+      "correlation": 0.18869888738189758
+    },
+    {
+      "a": "AMD",
+      "b": "AVGO",
+      "correlation": 0.5117314498806782
+    },
+    {
+      "a": "AMD",
+      "b": "MU",
+      "correlation": 0.6271823674587759
+    },
+    {
+      "a": "AMD",
+      "b": "TSM",
+      "correlation": 0.6579099352410892
+    },
+    {
+      "a": "AMD",
+      "b": "QCOM",
+      "correlation": 0.49886189067357245
+    },
+    {
+      "a": "AMD",
+      "b": "LRCX",
+      "correlation": 0.6906027719026492
+    },
+    {
+      "a": "AMD",
+      "b": "KLAC",
+      "correlation": 0.6345979118675036
+    },
+    {
+      "a": "AMD",
+      "b": "SPY",
+      "correlation": 0.5787842744063956
+    },
+    {
+      "a": "AMD",
+      "b": "IWM",
+      "correlation": 0.5457531169768349
+    },
+    {
+      "a": "AMD",
+      "b": "JPM",
+      "correlation": 0.11108276754742961
+    },
+    {
+      "a": "AMD",
+      "b": "XOM",
+      "correlation": -0.2555241753718431
+    },
+    {
+      "a": "MU",
+      "b": "SOXX",
+      "correlation": 0.8227499625165771
+    },
+    {
+      "a": "MU",
+      "b": "QQQ",
+      "correlation": 0.6855122080181363
+    },
+    {
+      "a": "MU",
+      "b": "SPXL",
+      "correlation": 0.4938925759709028
+    },
+    {
+      "a": "MU",
+      "b": "SITM",
+      "correlation": 0.46670318271083805
+    },
+    {
+      "a": "MU",
+      "b": "TSM",
+      "correlation": 0.6174537162617093
+    },
+    {
+      "a": "MU",
+      "b": "QCOM",
+      "correlation": 0.3778380447621479
+    },
+    {
+      "a": "MU",
+      "b": "SPY",
+      "correlation": 0.4914212263889359
+    },
+    {
+      "a": "MU",
+      "b": "XOM",
+      "correlation": -0.2254592687705929
+    },
+    {
+      "a": "TSM",
+      "b": "XOM",
+      "correlation": -0.29156189112796893
+    },
+    {
+      "a": "QCOM",
+      "b": "SOXX",
+      "correlation": 0.5484780018643627
+    },
+    {
+      "a": "QCOM",
+      "b": "QQQ",
+      "correlation": 0.5446648523233648
+    },
+    {
+      "a": "QCOM",
+      "b": "SPXL",
+      "correlation": 0.47383580571061534
+    },
+    {
+      "a": "QCOM",
+      "b": "SITM",
+      "correlation": 0.36869892442642727
+    },
+    {
+      "a": "QCOM",
+      "b": "TSM",
+      "correlation": 0.2601857310420643
+    },
+    {
+      "a": "QCOM",
+      "b": "SPY",
+      "correlation": 0.47565775143529376
+    },
+    {
+      "a": "QCOM",
+      "b": "XOM",
+      "correlation": -0.17532693964585594
+    },
+    {
+      "a": "AMAT",
+      "b": "SOXX",
+      "correlation": 0.8714352861105518
+    },
+    {
+      "a": "AMAT",
+      "b": "QQQ",
+      "correlation": 0.7181029945534095
+    },
+    {
+      "a": "AMAT",
+      "b": "SPXL",
+      "correlation": 0.5641046622561803
+    },
+    {
+      "a": "AMAT",
+      "b": "CRDO",
+      "correlation": 0.5288262146597968
+    },
+    {
+      "a": "AMAT",
+      "b": "SITM",
+      "correlation": 0.5336118550164483
+    },
+    {
+      "a": "AMAT",
+      "b": "META",
+      "correlation": 0.0666913691158396
+    },
+    {
+      "a": "AMAT",
+      "b": "AVGO",
+      "correlation": 0.5373217387046783
+    },
+    {
+      "a": "AMAT",
+      "b": "AMD",
+      "correlation": 0.6463399875305709
+    },
+    {
+      "a": "AMAT",
+      "b": "MU",
+      "correlation": 0.7394683673253528
+    },
+    {
+      "a": "AMAT",
+      "b": "TSM",
+      "correlation": 0.7196411939339307
+    },
+    {
+      "a": "AMAT",
+      "b": "QCOM",
+      "correlation": 0.3455721363450149
+    },
+    {
+      "a": "AMAT",
+      "b": "LRCX",
+      "correlation": 0.9172847407307266
+    },
+    {
+      "a": "AMAT",
+      "b": "KLAC",
+      "correlation": 0.8772897228229868
+    },
+    {
+      "a": "AMAT",
+      "b": "SPY",
+      "correlation": 0.5615612610712543
+    },
+    {
+      "a": "AMAT",
+      "b": "IWM",
+      "correlation": 0.561008093341558
+    },
+    {
+      "a": "AMAT",
+      "b": "JPM",
+      "correlation": 0.20514107970047016
+    },
+    {
+      "a": "AMAT",
+      "b": "XOM",
+      "correlation": -0.20626857981247856
+    },
+    {
+      "a": "LRCX",
+      "b": "SOXX",
+      "correlation": 0.8960842150308885
+    },
+    {
+      "a": "LRCX",
+      "b": "QQQ",
+      "correlation": 0.7567913404399265
+    },
+    {
+      "a": "LRCX",
+      "b": "SPXL",
+      "correlation": 0.6117177170558361
+    },
+    {
+      "a": "LRCX",
+      "b": "SITM",
+      "correlation": 0.5912509785352155
+    },
+    {
+      "a": "LRCX",
+      "b": "META",
+      "correlation": 0.1164224385021553
+    },
+    {
+      "a": "LRCX",
+      "b": "MU",
+      "correlation": 0.7739306429487789
+    },
+    {
+      "a": "LRCX",
+      "b": "TSM",
+      "correlation": 0.749612563752982
+    },
+    {
+      "a": "LRCX",
+      "b": "QCOM",
+      "correlation": 0.3659140104854992
+    },
+    {
+      "a": "LRCX",
+      "b": "SPY",
+      "correlation": 0.6105991841160943
+    },
+    {
+      "a": "LRCX",
+      "b": "XOM",
+      "correlation": -0.2684959852385436
+    },
+    {
+      "a": "KLAC",
+      "b": "SOXX",
+      "correlation": 0.8504508720433214
+    },
+    {
+      "a": "KLAC",
+      "b": "QQQ",
+      "correlation": 0.708865733766922
+    },
+    {
+      "a": "KLAC",
+      "b": "SPXL",
+      "correlation": 0.5625927436332727
+    },
+    {
+      "a": "KLAC",
+      "b": "SITM",
+      "correlation": 0.5450219908060097
+    },
+    {
+      "a": "KLAC",
+      "b": "META",
+      "correlation": 0.17215962372177415
+    },
+    {
+      "a": "KLAC",
+      "b": "MU",
+      "correlation": 0.6760211411103402
+    },
+    {
+      "a": "KLAC",
+      "b": "TSM",
+      "correlation": 0.7292063266682557
+    },
+    {
+      "a": "KLAC",
+      "b": "QCOM",
+      "correlation": 0.3327941190950954
+    },
+    {
+      "a": "KLAC",
+      "b": "LRCX",
+      "correlation": 0.8723034398645867
+    },
+    {
+      "a": "KLAC",
+      "b": "SPY",
+      "correlation": 0.5589152088850144
+    },
+    {
+      "a": "KLAC",
+      "b": "XOM",
+      "correlation": -0.22841701240610057
+    },
+    {
+      "a": "SPY",
+      "b": "TSM",
+      "correlation": 0.6798737070400749
+    },
+    {
+      "a": "SPY",
+      "b": "XOM",
+      "correlation": -0.3605693189280215
+    },
+    {
+      "a": "IWM",
+      "b": "SOXX",
+      "correlation": 0.6704426489193737
+    },
+    {
+      "a": "IWM",
+      "b": "QQQ",
+      "correlation": 0.7396590553186466
+    },
+    {
+      "a": "IWM",
+      "b": "SPXL",
+      "correlation": 0.8115260199012388
+    },
+    {
+      "a": "IWM",
+      "b": "SITM",
+      "correlation": 0.43762760778774884
+    },
+    {
+      "a": "IWM",
+      "b": "META",
+      "correlation": 0.2521090206149076
+    },
+    {
+      "a": "IWM",
+      "b": "MU",
+      "correlation": 0.47512077397525687
+    },
+    {
+      "a": "IWM",
+      "b": "TSM",
+      "correlation": 0.6056890179070268
+    },
+    {
+      "a": "IWM",
+      "b": "QCOM",
+      "correlation": 0.44246769005753384
+    },
+    {
+      "a": "IWM",
+      "b": "LRCX",
+      "correlation": 0.6177020258794472
+    },
+    {
+      "a": "IWM",
+      "b": "KLAC",
+      "correlation": 0.5814156607457687
+    },
+    {
+      "a": "IWM",
+      "b": "SPY",
+      "correlation": 0.81448930259283
+    },
+    {
+      "a": "IWM",
+      "b": "JPM",
+      "correlation": 0.46524132857034595
+    },
+    {
+      "a": "IWM",
+      "b": "XOM",
+      "correlation": -0.31545882993696467
+    },
+    {
+      "a": "JPM",
+      "b": "SOXX",
+      "correlation": 0.17133481935387093
+    },
+    {
+      "a": "JPM",
+      "b": "QQQ",
+      "correlation": 0.2426258634348866
+    },
+    {
+      "a": "JPM",
+      "b": "SPXL",
+      "correlation": 0.43791087574118104
+    },
+    {
+      "a": "JPM",
+      "b": "SITM",
+      "correlation": 0.05118767897216837
+    },
+    {
+      "a": "JPM",
+      "b": "META",
+      "correlation": 0.21915582630213032
+    },
+    {
+      "a": "JPM",
+      "b": "MU",
+      "correlation": 0.028297886521359603
+    },
+    {
+      "a": "JPM",
+      "b": "TSM",
+      "correlation": 0.12418482940096386
+    },
+    {
+      "a": "JPM",
+      "b": "QCOM",
+      "correlation": 0.16788335702186205
+    },
+    {
+      "a": "JPM",
+      "b": "LRCX",
+      "correlation": 0.23813895417096828
+    },
+    {
+      "a": "JPM",
+      "b": "KLAC",
+      "correlation": 0.18554999649505613
+    },
+    {
+      "a": "JPM",
+      "b": "SPY",
+      "correlation": 0.4419396927775336
+    },
+    {
+      "a": "JPM",
+      "b": "XOM",
+      "correlation": -0.1063077385636202
+    }
+  ]
+}
