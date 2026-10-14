@@ -10,6 +10,13 @@ or observed archive has been created. Automatic butterfly selection is unchanged
 
 ## Verified and enforced joint risk
 
+Exit/locking regression fixes: malformed numeric candle values (including Decimal
+InvalidOperation) still reject entry history but do not block quote-based exits.
+New entries stop at the same exit-only boundary used for position time exits,
+including 30 minutes before an early close. Archive locks retain the full filename
+and append `.archive.lock`; the shared portfolio lock is unchanged. Explicit
+archive/portfolio lock-path overlaps are rejected before lock acquisition.
+
 Verified runtime Settings: $500 maximum loss per trade; $750 daily realized-loss
 limit; $750 total open risk; one open position; one trade per New York day.
 Profit target remains 50%, stop debit multiple 2, entry window 10:00–14:30 New

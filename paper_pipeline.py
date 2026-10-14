@@ -5,6 +5,7 @@ No network client or order tools. Missing data is never replaced with fixtures.
 import argparse
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
+from decimal import InvalidOperation
 import json
 import os
 from pathlib import Path
@@ -65,7 +66,7 @@ def build_snapshot(bundle, now, *, allow_fixtures=False, exit_only=False):
     history_error = None
     try:
         bars, completed = validate_history(bundle, now)
-    except (ValueError, KeyError, TypeError) as error:
+    except (ValueError, KeyError, TypeError, InvalidOperation) as error:
         if not exit_only:
             raise
         bars, completed = [], []
@@ -119,17 +120,20 @@ def main():
         parser.error("Forward bundle must be observed within 60 seconds; use --historical for offline replay")
     if args.allow_fixtures and not args.historical:
         parser.error("Fixtures are only allowed in explicitly historical regression runs")
-    from paper_portfolio import OBSERVED_PORTFOLIO, apply_observation, locked_portfolio, reconcile_exports
+    from paper_portfolio import OBSERVED_PORTFOLIO, apply_observation, locked_portfolio, reconcile_exports, archive_lock_path
     fixture = bundle.get('source', {}).get('kind') == 'fixture'
     portfolio_path = args.portfolio or (args.archive.parent / 'fixture-portfolio.sqlite3' if fixture else OBSERVED_PORTFOLIO)
     if not fixture and portfolio_path.resolve() != OBSERVED_PORTFOLIO.resolve():
         parser.error('Observed credit runs cannot select an independent portfolio')
+    archive_lock=archive_lock_path(args.archive)
+    if archive_lock == portfolio_path.resolve().with_suffix('.lock'):
+        parser.error('Archive lock must not overlap the portfolio lock')
     if portfolio_path.exists():
         with locked_portfolio(portfolio_path) as db:
             reconcile_exports(db)  # recover committed observations before reading JSON
     import fcntl
     args.archive.parent.mkdir(parents=True, exist_ok=True)
-    with args.archive.with_suffix(".lock").open("a") as lock:
+    with archive_lock.open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.archive.exists():
             if args.init:

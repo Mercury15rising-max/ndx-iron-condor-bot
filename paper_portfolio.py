@@ -23,6 +23,11 @@ PLAN_FIELDS = ('expiration_rule', 'short_strike_rule', 'wing_width_rule',
                'tie_break_rule', 'strategy_rule')
 
 
+def archive_lock_path(path):
+    path=Path(path).resolve()
+    return path.with_name(path.name+'.archive.lock')
+
+
 def validate_plan(plan):
     if (not isinstance(plan, dict) or plan.get('mode') != 'explicit_contract_plan'
             or any(not isinstance(plan.get(k), str) or not plan[k].strip() for k in PLAN_FIELDS)):

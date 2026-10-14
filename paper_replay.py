@@ -180,8 +180,9 @@ def main():
     if bool(args.snapshot) != bool(args.observed_at):
         parser.error("Snapshot and observation time must be supplied together")
     import fcntl
+    from paper_portfolio import archive_lock_path
     args.archive.parent.mkdir(parents=True, exist_ok=True)
-    with args.archive.with_suffix(".lock").open("a") as lock:
+    with archive_lock_path(args.archive).open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.archive.exists():
             if args.init: parser.error("Archive exists; reset refused")

@@ -143,6 +143,9 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract, selection_ru
     if portfolio is not None and (not isinstance(portfolio, dict) or set(portfolio) != {'open_positions','open_risk','daily_pnl','trades_today','cash'}):
         raise ValueError('Malformed shared portfolio context')
     daily_pnl = number(portfolio['daily_pnl']) if portfolio else number(state['daily_pnl'].get(day,0))
+    local_time = now.astimezone(NY).time()
+    time_exit = (local_time >= time.fromisoformat(risk['exit_only_start'])
+                 or now >= timestamp(session['close'])-timedelta(minutes=30))
     if position:
         gross = close_debit(legs, quotes)
         cost = gross + number(position['exit_fee'])
@@ -150,12 +153,10 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract, selection_ru
         pnl = net_entry-cost
         stop = number(position['gross_entry_credit'])*number(risk['stop_loss_multiple'])
         target = number(position['gross_entry_credit'])*(1-number(risk['profit_target_pct'])/100)
-        local_time = now.astimezone(NY).time()
         action = ('KILL_SWITCH' if daily_pnl <= -number(risk['max_daily_loss'])
                   else 'STOP_LOSS' if gross >= stop
                   else 'TAKE_PROFIT' if gross <= target
-                  else 'TIME_EXIT' if (local_time >= time.fromisoformat(risk['exit_only_start'])
-                                      or now >= timestamp(session['close'])-timedelta(minutes=30))
+                  else 'TIME_EXIT' if time_exit
                   else 'HOLD')
         details = dict(position=position, quotes=selected_quotes, gross_exit_debit=str(gross),
                        exit_fee=position['exit_fee'], exit_cost=str(cost), net_pnl=str(pnl),
@@ -166,8 +167,7 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract, selection_ru
             state['position'] = None
             state['completed'] += 1
         return finish(action, 'Whole-position quote-side credit valuation; modeled fees included', **details)
-    local_time = now.astimezone(NY).time()
-    if not time.fromisoformat(risk['normal_entry_start']) <= local_time < min(time.fromisoformat(risk['normal_entry_end']), time.fromisoformat(risk['exit_only_start'])):
+    if time_exit or not time.fromisoformat(risk['normal_entry_start']) <= local_time < min(time.fromisoformat(risk['normal_entry_end']), time.fromisoformat(risk['exit_only_start'])):
         return finish('NO_TRADE', 'Outside configured entry window')
     if snapshot.get('complete') is not True:
         return finish('NO_TRADE', 'Complete contract/quote universe required')
