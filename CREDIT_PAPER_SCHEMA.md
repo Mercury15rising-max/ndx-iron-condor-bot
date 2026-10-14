@@ -1,5 +1,12 @@
 # NDXP four-leg credit paper pipeline
 
+New observed iron-condor experiments use the fixed rules described in
+FIXED_CONDOR_EXPERIMENT.md. That selector derives options.selection from the
+exported universe; selection may be omitted from the input bundle in this mode.
+A plan with actual instrument IDs must be validated from real data before init.
+The generic explicit-selection schema below still applies to manual fixtures
+and the separate butterfly workflow; it does not override the fixed condor rules.
+
 Supported archived strategies: `iron_condor` and `iron_butterfly` (short iron
 butterfly). These use the existing strategy leg roles and configured credit
 exit/risk limits. The pipeline validates an explicit four-leg selection from a

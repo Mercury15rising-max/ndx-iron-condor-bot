@@ -94,8 +94,12 @@ def close_debit(legs, quotes):
                 else -number(quotes[legs[r]['id']]['bid_price'])) for r in ROLES)*100
 
 
-def step(state, snapshot, now, *, strategy, risk, fee_per_contract):
+def step(state, snapshot, now, *, strategy, risk, fee_per_contract, selection_rules=None):
     validate_risk(risk, fee_per_contract)
+    if selection_rules is not None:
+        from condor_selection import RULESET
+        if selection_rules != RULESET or strategy != 'iron_condor':
+            raise ValueError('Fixed condor experiment cannot switch strategy/rules')
     if strategy not in STRATEGIES or state.get('engine') != 'ndxp_v1' or state.get('version') != 1:
         raise ValueError('Unsupported strategy/state')
     if now.tzinfo is None or (state['last_observed'] and now <= timestamp(state['last_observed'])):
@@ -118,6 +122,11 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract):
                 raise ValueError('Open position strategy mismatch')
             legs = position['legs']
         else:
+            if selection_rules:
+                from condor_selection import select_condor
+                snapshot = dict(snapshot,selection=select_condor(snapshot,now))
+                if snapshot.get('selection_rejection'):
+                    raise ValueError(snapshot['selection_rejection'])
             legs, width_cash = selected_legs(snapshot, strategy, now)
         for leg in legs.values():
             q = quotes.get(leg['id'], {})

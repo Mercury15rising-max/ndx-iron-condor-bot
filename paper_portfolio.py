@@ -150,10 +150,24 @@ def apply_observation(db_path, archive_path, archive, snapshot, now, *, initiali
         current_state, _ = replay(archive)
         if current_state['position'] is None and snapshot['provenance'].get('history_unavailable'):
             raise ValueError('Entry requires validated three-session history after recovery')
+        fixed_rules=archive['config'].get('selection_rules')
+        if kind=='observed' and strategy=='iron_condor' and fixed_rules!='fixed_ndxp_condor_v1':
+            raise ValueError('Observed first condor experiment requires fixed_ndxp_condor_v1')
+        if fixed_rules and current_state['position'] is None:
+            from condor_selection import select_condor
+            if plan is not None and plan.get('ruleset')!=fixed_rules:
+                raise ValueError('Plan must have been validated against the fixed condor rules')
+            try:
+                snapshot=dict(snapshot,selection=select_condor(snapshot,now))
+            except (ValueError,KeyError,TypeError):
+                pass  # engine records the precise NO_TRADE reason; never substitute
         if plan is not None and (plan['strategy'] != strategy or snapshot.get('selection', {}).get('legs') != plan['legs']):
             state, _ = replay(archive)
             if state['position'] is None:
-                raise ValueError('Entry selection differs from frozen explicit contract plan')
+                if fixed_rules:
+                    snapshot=dict(snapshot,selection_rejection='Rule-selected IDs differ from validated first-experiment plan')
+                else:
+                    raise ValueError('Entry selection differs from frozen explicit contract plan')
         last = metadata.get('last_observed')
         if last and now < timestamp(last):
             raise ValueError('Observations across strategies must be globally chronological')

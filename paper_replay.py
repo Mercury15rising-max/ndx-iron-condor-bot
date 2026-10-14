@@ -21,11 +21,11 @@ def digest(value):
 def implementation():
     root = Path(__file__).parent
     return digest({"sources": {p: (root / p).read_text() for p in
-                   ("ndx_paper.py", "credit_paper.py", "paper_portfolio.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
+                   ("ndx_paper.py", "credit_paper.py", "condor_selection.py", "paper_portfolio.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
                    "calendar_version": version("exchange-calendars")})
 
 
-def new_archive(strategy="call_debit_spread", fee_per_contract="0.50"):
+def new_archive(strategy="call_debit_spread", fee_per_contract="0.50", selection_rules=None):
     config = {"entry_signal": "triple_cross"}
     if strategy != "call_debit_spread":
         from credit_paper import STRATEGIES, configured_risk, validate_risk
@@ -33,6 +33,11 @@ def new_archive(strategy="call_debit_spread", fee_per_contract="0.50"):
             raise ValueError("Unknown credit strategy")
         config = {"strategy": strategy, "risk": configured_risk(), "fee_per_contract": str(fee_per_contract)}
         validate_risk(config["risk"], config["fee_per_contract"])
+    if selection_rules is not None:
+        from condor_selection import RULESET
+        if strategy!='iron_condor' or selection_rules!=RULESET:
+            raise ValueError('Fixed experiment requires iron_condor')
+        config['selection_rules']=selection_rules
     return {"version": 1, "implementation": implementation(),
             "config": config, "records": []}
 
@@ -124,8 +129,12 @@ def replay(archive):
     if archive.get("config") != {"entry_signal": "triple_cross"}:
         from credit_paper import STRATEGIES, validate_risk
         config = archive.get('config', {})
-        if not isinstance(config, dict) or set(config) != {'strategy', 'risk', 'fee_per_contract'} or config['strategy'] not in STRATEGIES:
+        if not isinstance(config, dict) or set(config) not in ({'strategy', 'risk', 'fee_per_contract'}, {'strategy', 'risk', 'fee_per_contract','selection_rules'}) or config['strategy'] not in STRATEGIES:
             raise ValueError("Unsupported experiment configuration")
+        if 'selection_rules' in config:
+            from condor_selection import RULESET
+            if config['selection_rules']!=RULESET or config['strategy']!='iron_condor':
+                raise ValueError('Unsupported fixed experiment')
         validate_risk(config['risk'], config['fee_per_contract'])
     state = ndx_paper.initial_state()
     previous = digest({k: v for k, v in archive.items() if k != "records"})

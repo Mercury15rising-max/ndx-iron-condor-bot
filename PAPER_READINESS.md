@@ -1,5 +1,13 @@
 # Quentin Simmons Jr Trading Bot: paper-test readiness
 
+Update: the first observed condor experiment now implements fixed deterministic
+selection rules in FIXED_CONDOR_EXPERIMENT.md. The selector inspection below
+describes the earlier gaps and legacy functions. For this condor experiment those
+gaps are resolved by earliest 1–7 DTE, inclusive .10–.15 short deltas, highest put/
+lowest call short strikes, exact symmetric 25-point wings, ambiguity rejection
+and no butterfly fallback. Real-data plan validation remains blocked, so no plan
+or observed archive has been created. Automatic butterfly selection is unchanged.
+
 ## Verified and enforced joint risk
 
 Verified runtime Settings: $500 maximum loss per trade; $750 daily realized-loss

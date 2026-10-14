@@ -105,6 +105,7 @@ def main():
     parser.add_argument("--fee-per-contract", help="Credit strategy modeled fee per leg per side; default 0.50")
     parser.add_argument("--portfolio", type=Path, help="Shared fixture database override; observed runs use the fixed bot portfolio")
     parser.add_argument("--selection-plan", type=Path, help="Frozen explicit contract plan required for new observed credit experiments")
+    parser.add_argument("--selection-rules", choices=('fixed_ndxp_condor_v1',), help="Fixed first-experiment condor rules; no butterfly fallback")
     parser.add_argument("--historical", action="store_true", help="Explicit offline replay, not forward fills")
     parser.add_argument("--allow-fixtures", action="store_true", help="Synthetic regression validation only")
     args = parser.parse_args()
@@ -135,11 +136,16 @@ def main():
                 parser.error("Archive exists; refusing reset")
             archive = json.loads(args.archive.read_text())
         elif args.init:
-            archive = new_archive(args.strategy or "call_debit_spread", args.fee_per_contract or "0.50")
+            rules=args.selection_rules
+            if not fixture and args.strategy=='iron_condor':
+                rules=rules or 'fixed_ndxp_condor_v1'
+            archive = new_archive(args.strategy or "call_debit_spread", args.fee_per_contract or "0.50", rules)
         else:
             parser.error("Archive missing; explicit --init required")
         current_state, _ = replay(archive)
         saved_strategy = archive['config'].get('strategy', 'call_debit_spread')
+        if args.selection_rules and args.selection_rules != archive['config'].get('selection_rules'):
+            parser.error('Cannot change selection rules of an existing archive')
         if args.strategy and args.strategy != saved_strategy:
             parser.error('Cannot change the strategy of an existing archive')
         if args.fee_per_contract and (saved_strategy == 'call_debit_spread' or number(args.fee_per_contract) != number(archive['config']['fee_per_contract'])):
