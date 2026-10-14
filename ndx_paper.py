@@ -9,6 +9,7 @@ from pathlib import Path
 import tempfile
 from zoneinfo import ZoneInfo
 from ema_signals import evaluate_ema
+from exchange_session import session_at
 
 CT = ZoneInfo("America/New_York")
 D = Decimal
@@ -50,11 +51,8 @@ def usable_quote(q, now):
 
 
 def regular_session(now):
-    # Legacy helper name kept local; this NDX engine uses regular-session hours.
-    local = now.astimezone(CT)
-    if local.weekday() < 5 and time(9, 30) <= local.time() < time(16):
-        return local.date().isoformat()
-    return None
+    verified = session_at(now)
+    return verified["date"] if verified else None
 
 
 def step(state, snapshot, now, *, entry_signal="triple_cross"):
@@ -85,12 +83,15 @@ def step(state, snapshot, now, *, entry_signal="triple_cross"):
     session = regular_session(now)
     if (session is None or snapshot.get("session_open") is not True
             or not fresh(snapshot.get("session_observed_at"), now)):
-        return finish("UNAVAILABLE", "Verified open regular session required")
+        return finish("UNRESOLVED" if state["position"] else "UNAVAILABLE",
+                      "Verified open regular session required")
 
     rows = snapshot.get("quotes", [])
     if not isinstance(rows, list) or any(not isinstance(q, dict) for q in rows):
         return finish("UNAVAILABLE", "Malformed quote list")
-    quotes = {q.get("instrument_id"): q for q in rows}
+    if any(not isinstance(q.get("instrument_id"), str) or not q["instrument_id"] for q in rows):
+        return finish("UNRESOLVED" if state["position"] else "UNAVAILABLE", "Missing or malformed quote IDs")
+    quotes = {q["instrument_id"]: q for q in rows}
     if None in quotes or len(quotes) != len(rows):
         return finish("UNAVAILABLE", "Missing or duplicate quote IDs")
 
@@ -139,18 +140,25 @@ def step(state, snapshot, now, *, entry_signal="triple_cross"):
     signal = None
     if entry_signal != "baseline":
         signal = evaluate_ema(snapshot.get("signal_bars", []), now,
-                              symbol=snapshot.get("signal_symbol"), timeframe_seconds=300)
+                              symbol=snapshot.get("signal_symbol"), timeframe_seconds=300,
+                              regular_sessions=True)
         if not signal["ready"] or signal[entry_signal] != "bullish":
             return finish("NO_TRADE", "Fresh bullish entry signal required", signal=signal)
         key = signal["symbol"] + ":" + signal["bar_close"]
         if state.get("last_signal_bar") == key:
             return finish("NO_TRADE", "Crossover bar already used", signal=signal)
 
-    chains = {c["id"] for c in snapshot.get("chains", [])
+    chain_rows = snapshot.get("chains", [])
+    instruments = snapshot.get("instruments", [])
+    if (not isinstance(chain_rows, list) or not isinstance(instruments, list)
+            or any(not isinstance(c, dict) or not isinstance(c.get("id"), str) or not c["id"] for c in chain_rows)
+            or any(not isinstance(i, dict) or not isinstance(i.get("id"), str) or not i["id"] for i in instruments)
+            or len({c["id"] for c in chain_rows}) != len(chain_rows)):
+        return finish("NO_TRADE", "Malformed contract metadata")
+    chains = {c["id"] for c in chain_rows
               if c.get("symbol") == "NDXP" and c.get("settle_on_open") is False
               and c.get("can_open_position") is True
               and str(c.get("trade_value_multiplier")) in ("100", "100.0000")}
-    instruments = snapshot.get("instruments", [])
     ids = [i.get("id") for i in instruments]
     if None in ids or len(set(ids)) != len(ids):
         return finish("NO_TRADE", "Missing or duplicate instrument IDs")

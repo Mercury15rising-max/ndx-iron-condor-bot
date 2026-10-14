@@ -29,7 +29,7 @@ def crossover(previous_fast, previous_slow, fast, slow):
     return "none"
 
 
-def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300):
+def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300, regular_sessions=False):
     """Use only closed candles; reject gaps, mixed feeds and stale signals.
 
     106 closed candles allow 105 warmup observations plus a comparison bar.
@@ -53,9 +53,12 @@ def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300):
             price = float(bar["close"])
             if not isfinite(price) or price <= 0 or bar.get("interpolated") is True:
                 raise ValueError("Invalid or interpolated close")
-            if closed and (end - closed[-1][0]).total_seconds() != timeframe_seconds:
+            if not regular_sessions and closed and (end - closed[-1][0]).total_seconds() != timeframe_seconds:
                 raise ValueError("Candle gap; do not forward-fill")
             closed.append((end, price))
+        if regular_sessions:
+            from exchange_session import validate_closes
+            validate_closes([c[0] for c in closed], timeframe_seconds)
         if len(closed) < 106:
             raise ValueError("At least 106 completed candles required")
         if not 0 <= (now - closed[-1][0]).total_seconds() <= timeframe_seconds:

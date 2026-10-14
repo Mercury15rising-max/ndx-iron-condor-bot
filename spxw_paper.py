@@ -36,7 +36,7 @@ def fresh(value, now):
 
 
 def initial_state():
-    return {"version": 1, "balance": "3000", "position": None,
+    return {"version": 1, "engine": "spxw_v1", "balance": "3000", "position": None,
             "completed": 0, "daily_pnl": {}, "events": [], "last_observed": None}
 
 
@@ -70,7 +70,7 @@ def step(state, snapshot, now, *, entry_signal="baseline"):
         raise ValueError("now must be timezone-aware")
     if entry_signal not in ("baseline", "fast_cross", "triple_cross", "vwap_flip", "ema9_rollback"):
         raise ValueError("Unknown entry signal")
-    if state.get("version") != 1:
+    if state.get("version") != 1 or state.get("engine") not in (None, "spxw_v1"):
         raise ValueError("Unsupported paper state")
     if state["last_observed"] and now <= timestamp(state["last_observed"]):
         raise ValueError("Observation must advance; replay rejected")
@@ -92,7 +92,9 @@ def step(state, snapshot, now, *, entry_signal="baseline"):
     rows = snapshot.get("quotes", [])
     if not isinstance(rows, list) or any(not isinstance(q, dict) for q in rows):
         return finish("UNAVAILABLE", "Malformed quote list")
-    quotes = {q.get("instrument_id"): q for q in rows}
+    if any(not isinstance(q.get("instrument_id"), str) or not q["instrument_id"] for q in rows):
+        return finish("UNRESOLVED" if state["position"] else "UNAVAILABLE", "Missing or malformed quote IDs")
+    quotes = {q["instrument_id"]: q for q in rows}
     if None in quotes or len(quotes) != len(rows):
         return finish("UNAVAILABLE", "Missing or duplicate quote IDs")
 
@@ -144,12 +146,18 @@ def step(state, snapshot, now, *, entry_signal="baseline"):
         if state.get("last_signal_bar") == key:
             return finish("NO_TRADE", "Crossover bar already used", signal=signal)
 
-    chains = {c["id"] for c in snapshot.get("chains", [])
+    chain_rows = snapshot.get("chains", [])
+    instruments = snapshot.get("instruments", [])
+    if (not isinstance(chain_rows, list) or not isinstance(instruments, list)
+            or any(not isinstance(c, dict) or not isinstance(c.get("id"), str) or not c["id"] for c in chain_rows)
+            or any(not isinstance(i, dict) or not isinstance(i.get("id"), str) or not i["id"] for i in instruments)
+            or len({c["id"] for c in chain_rows}) != len(chain_rows)):
+        return finish("NO_TRADE", "Malformed contract metadata")
+    chains = {c["id"] for c in chain_rows
               if c.get("symbol") == "SPXW" and c.get("settle_on_open") is False
               and c.get("extended_hours_state") == "enabled"
               and c.get("can_open_position") is True
               and str(c.get("trade_value_multiplier")) in ("100", "100.0000")}
-    instruments = snapshot.get("instruments", [])
     ids = [i.get("id") for i in instruments]
     if None in ids or len(set(ids)) != len(ids):
         return finish("NO_TRADE", "Missing or duplicate instrument IDs")

@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+from importlib.metadata import version
 
 import ndx_paper
 
@@ -19,8 +20,9 @@ def digest(value):
 
 def implementation():
     root = Path(__file__).parent
-    return digest({p: (root / p).read_text() for p in
-                   ("ndx_paper.py", "ema_signals.py", "paper_replay.py")})
+    return digest({"sources": {p: (root / p).read_text() for p in
+                   ("ndx_paper.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
+                   "calendar_version": version("exchange-calendars")})
 
 
 def new_archive():
@@ -35,12 +37,15 @@ def accounting(state):
     pnls = []
     peak = cash
     drawdown = Decimal(0)
+    daily = {}
+    position = None
     for event in state["events"]:
         action = event["action"]
         if action == "PAPER_ENTRY":
             if opened is not None:
                 raise ValueError("Overlapping entries")
             p = event["position"]
+            position = p
             opened = (Decimal(str(p["long_quote"]["ask_price"])) -
                       Decimal(str(p["short_quote"]["bid_price"]))) * 100 + 2
             if opened != Decimal(p["entry_cost"]):
@@ -49,6 +54,8 @@ def accounting(state):
         elif action in ("STOP_LOSS", "TIME_EXIT"):
             if opened is None:
                 raise ValueError("Exit without entry")
+            if event["position"] != position:
+                raise ValueError("Exit position mismatch")
             value = (Decimal(str(event["long_quote"]["bid_price"])) -
                      Decimal(str(event["short_quote"]["ask_price"]))) * 100 - 2
             pnl = value - opened
@@ -56,13 +63,18 @@ def accounting(state):
                 raise ValueError("Exit accounting mismatch")
             cash += value
             pnls.append(pnl)
+            day = ndx_paper.timestamp(event["at"]).astimezone(ndx_paper.CT).date().isoformat()
+            daily[day] = daily.get(day, Decimal(0)) + pnl
             opened = None
+            position = None
             peak = max(peak, cash)
             drawdown = max(drawdown, peak - cash)
     if cash != Decimal(state["balance"]) or len(pnls) != state["completed"]:
         raise ValueError("Ledger reconciliation failed")
     if (opened is None) != (state["position"] is None):
         raise ValueError("Open-position reconciliation failed")
+    if position != state["position"] or daily != {day: Decimal(value) for day, value in state["daily_pnl"].items()}:
+        raise ValueError("Position/daily P&L reconciliation failed")
     total = sum(pnls, Decimal(0))
     count = len(pnls)
     return {"completed_trades": count, "realized_pnl": str(total),

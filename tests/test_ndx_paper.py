@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from test_spxw_paper import snapshot
 from test_ema_signals import bars
 from ndx_paper import initial_state, step
+from exchange_session import bounds
 
 NOW = datetime(2026, 10, 14, 17, 0, tzinfo=timezone.utc)
 
@@ -14,10 +15,21 @@ def data(now=NOW):
     for i in s['instruments']:
         i['chain_symbol'] = 'NDXP'
     candles = bars()
-    shift = now - datetime.fromisoformat(candles[-1]['close_time'])
-    for b in candles:
+    # Synthetic prices on genuine session boundaries, never market observations.
+    ends = []
+    day = now.date() - timedelta(days=10)
+    while day <= now.date():
+        hours = bounds(day)
+        if hours:
+            end = hours[0] + timedelta(minutes=5)
+            while end <= min(hours[1], now):
+                ends.append(end)
+                end += timedelta(minutes=5)
+        day += timedelta(days=1)
+    ends = ends[-len(candles):]
+    for b, end in zip(candles, ends):
         b['symbol'] = 'QQQ'
-        b['close_time'] = (datetime.fromisoformat(b['close_time']) + shift).isoformat()
+        b['close_time'] = end.isoformat()
     s.update(signal_symbol='QQQ', signal_bars=candles)
     return s
 

@@ -18,9 +18,10 @@ Reference: https://www.nasdaq.com/products/north-american-markets/nasdaq-100-opt
 - Explicit QQQ proxy: 106 contiguous completed 5-minute candles, latest no more
   than 5 minutes old. First-close-seeded EMA8 > EMA13 > EMA21 newly established
   relative to previous candle. Bullish only; no position for bearish/neutral.
-  QQQ is a proxy and is not the NDX index. History must include actual extended
-  session bars if needed for warmup. Without them, insufficient contiguous history
-  means no entry; never fill overnight gaps. This may limit entry opportunities.
+  QQQ is a proxy and is not the NDX index. Regular-session history now accepts
+  exchange-calendar-verified session boundaries, while rejecting intraday gaps,
+  skipped sessions and extended-hours bars. Never fill overnight gaps. See
+  PAPER_PIPELINE_REVIEW.md for data ingestion and calendar verification limits.
 - Earliest eligible PM-settled NDXP expiry 1-3 calendar days away, no 0DTE.
   Long call closest to delta .30, ties lower strike then ID; short exactly 5
   points higher in same chain/expiry. Skip if unavailable; do not substitute width.
