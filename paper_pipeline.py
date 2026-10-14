@@ -100,11 +100,16 @@ def main():
     parser.add_argument("bundle", type=Path)
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--init", action="store_true")
+    parser.add_argument("--strategy", choices=("call_debit_spread", "iron_condor", "iron_butterfly"),
+                        help="New archive strategy; existing archives retain their strategy")
+    parser.add_argument("--fee-per-contract", help="Credit strategy modeled fee per leg per side; default 0.50")
     parser.add_argument("--historical", action="store_true", help="Explicit offline replay, not forward fills")
     parser.add_argument("--allow-fixtures", action="store_true", help="Synthetic regression validation only")
     args = parser.parse_args()
-    if os.getenv("TRADING_MODE", "paper").lower() != "paper" or os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() != "false":
-        parser.error("Paper mode with live orders disabled required")
+    if (os.getenv("TRADING_MODE", "paper").lower() != "paper"
+            or os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() != "false"
+            or os.getenv("ALLOW_0DTE", "false").lower() != "false"):
+        parser.error("Paper mode with live orders and 0DTE disabled required")
     bundle = json.loads(args.bundle.read_text())
     now = timestamp(bundle["observed_at"])
     if not args.historical and not 0 <= (datetime.now(timezone.utc)-now).total_seconds() <= 60:
@@ -120,10 +125,15 @@ def main():
                 parser.error("Archive exists; refusing reset")
             archive = json.loads(args.archive.read_text())
         elif args.init:
-            archive = new_archive()
+            archive = new_archive(args.strategy or "call_debit_spread", args.fee_per_contract or "0.50")
         else:
             parser.error("Archive missing; explicit --init required")
         current_state, _ = replay(archive)
+        saved_strategy = archive['config'].get('strategy', 'call_debit_spread')
+        if args.strategy and args.strategy != saved_strategy:
+            parser.error('Cannot change the strategy of an existing archive')
+        if args.fee_per_contract and (saved_strategy == 'call_debit_spread' or number(args.fee_per_contract) != number(archive['config']['fee_per_contract'])):
+            parser.error('Cannot change fees of an existing archive or debit strategy')
         snapshot = build_snapshot(bundle, now, allow_fixtures=args.allow_fixtures,
                                   exit_only=current_state["position"] is not None)
         snapshot["provenance"]["run_mode"] = "historical" if args.historical else "forward"

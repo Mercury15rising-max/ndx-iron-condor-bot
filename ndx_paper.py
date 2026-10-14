@@ -55,13 +55,16 @@ def regular_session(now):
     return verified["date"] if verified else None
 
 
-def step(state, snapshot, now, *, entry_signal="triple_cross"):
+def step(state, snapshot, now, *, entry_signal="triple_cross", strategy="call_debit_spread", risk=None, fee_per_contract="0.50"):
     """Return new state + event. Caller must persist them together atomically.
 
     snapshot: chains/instruments arrays, quotes array of quote objects (not wrappers),
     complete=true for entry selection, session_open=true and session_observed_at
     from a verified exchange-calendar/data source. No inferred holiday openings.
     """
+    if strategy != "call_debit_spread":
+        from credit_paper import step as credit_step
+        return credit_step(state, snapshot, now, strategy=strategy, risk=risk, fee_per_contract=fee_per_contract)
     if now.tzinfo is None:
         raise ValueError("now must be timezone-aware")
     if entry_signal != "triple_cross":

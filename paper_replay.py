@@ -21,13 +21,20 @@ def digest(value):
 def implementation():
     root = Path(__file__).parent
     return digest({"sources": {p: (root / p).read_text() for p in
-                   ("ndx_paper.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
+                   ("ndx_paper.py", "credit_paper.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
                    "calendar_version": version("exchange-calendars")})
 
 
-def new_archive():
+def new_archive(strategy="call_debit_spread", fee_per_contract="0.50"):
+    config = {"entry_signal": "triple_cross"}
+    if strategy != "call_debit_spread":
+        from credit_paper import STRATEGIES, configured_risk, validate_risk
+        if strategy not in STRATEGIES:
+            raise ValueError("Unknown credit strategy")
+        config = {"strategy": strategy, "risk": configured_risk(), "fee_per_contract": str(fee_per_contract)}
+        validate_risk(config["risk"], config["fee_per_contract"])
     return {"version": 1, "implementation": implementation(),
-            "config": {"entry_signal": "triple_cross"}, "records": []}
+            "config": config, "records": []}
 
 
 def accounting(state):
@@ -39,6 +46,7 @@ def accounting(state):
     drawdown = Decimal(0)
     daily = {}
     position = None
+    stress = Decimal(0)
     for event in state["events"]:
         action = event["action"]
         if action == "PAPER_ENTRY":
@@ -46,23 +54,45 @@ def accounting(state):
                 raise ValueError("Overlapping entries")
             p = event["position"]
             position = p
-            opened = (Decimal(str(p["long_quote"]["ask_price"])) -
-                      Decimal(str(p["short_quote"]["bid_price"]))) * 100 + 2
-            if opened != Decimal(p["entry_cost"]):
-                raise ValueError("Entry accounting mismatch")
+            if p.get("strategy") in ("iron_condor", "iron_butterfly"):
+                gross = sum(Decimal(str(p['entry_quotes'][i['id']]['bid_price' if r.startswith('short') else 'ask_price']))
+                            * (1 if r.startswith('short') else -1) for r,i in p['legs'].items())*100
+                fee = Decimal(p['entry_fee'])
+                net = gross-fee
+                if fee < 0 or Decimal(p['exit_fee']) < 0 or gross != Decimal(p['gross_entry_credit']) or net != Decimal(p['net_entry_credit']):
+                    raise ValueError('Credit entry accounting mismatch')
+                strikes = {r: Decimal(i['strike_price']) for r,i in p['legs'].items()}
+                width = max(strikes['short_put']-strikes['long_put'], strikes['long_call']-strikes['short_call'])*100
+                if width-gross+fee+Decimal(p['exit_fee']) != Decimal(p['max_loss']):
+                    raise ValueError('Credit maximum-loss accounting mismatch')
+                opened = -net
+            else:
+                opened = (Decimal(str(p["long_quote"]["ask_price"])) -
+                          Decimal(str(p["short_quote"]["bid_price"]))) * 100 + 2
+                if opened != Decimal(p["entry_cost"]):
+                    raise ValueError("Entry accounting mismatch")
             cash -= opened
-        elif action in ("STOP_LOSS", "TIME_EXIT"):
+        elif action in ("STOP_LOSS", "TIME_EXIT", "TAKE_PROFIT", "KILL_SWITCH"):
             if opened is None:
                 raise ValueError("Exit without entry")
             if event["position"] != position:
                 raise ValueError("Exit position mismatch")
-            value = (Decimal(str(event["long_quote"]["bid_price"])) -
-                     Decimal(str(event["short_quote"]["ask_price"]))) * 100 - 2
+            credit = position.get('strategy') in ('iron_condor', 'iron_butterfly')
+            if credit:
+                gross = sum(Decimal(str(event['quotes'][i['id']]['ask_price' if r.startswith('short') else 'bid_price']))
+                            * (1 if r.startswith('short') else -1) for r,i in position['legs'].items())*100
+                value = -(gross+Decimal(position['exit_fee']))
+                if gross != Decimal(event['gross_exit_debit']) or -value != Decimal(event['exit_cost']) or event['exit_fee'] != position['exit_fee']:
+                    raise ValueError('Credit exit accounting mismatch')
+            else:
+                value = (Decimal(str(event["long_quote"]["bid_price"])) -
+                         Decimal(str(event["short_quote"]["ask_price"]))) * 100 - 2
             pnl = value - opened
-            if value != Decimal(event["exit_value"]) or pnl != Decimal(event["net_pnl"]):
+            if (not credit and value != Decimal(event["exit_value"])) or pnl != Decimal(event["net_pnl"]):
                 raise ValueError("Exit accounting mismatch")
             cash += value
             pnls.append(pnl)
+            stress += 40 if credit else 20
             day = ndx_paper.timestamp(event["at"]).astimezone(ndx_paper.CT).date().isoformat()
             daily[day] = daily.get(day, Decimal(0)) + pnl
             opened = None
@@ -84,7 +114,7 @@ def accounting(state):
             "unresolved_position": opened is not None,
             "goal": "REVIEW_REQUIRED" if count >= 30 and opened is None else "INCOMPLETE",
             # 0.05 price points adverse per leg per side = $20 extra round-trip.
-            "stress_realized_pnl_005_per_leg_per_side": str(total - count * 20),
+            "stress_realized_pnl_005_per_leg_per_side": str(total - stress),
             "stress_note": "Post-trade sensitivity only; not a fill or signal replay"}
 
 
@@ -92,7 +122,11 @@ def replay(archive):
     if archive.get("version") != 1 or archive.get("implementation") != implementation():
         raise ValueError("Archive version/source fingerprint mismatch")
     if archive.get("config") != {"entry_signal": "triple_cross"}:
-        raise ValueError("Unsupported experiment configuration")
+        from credit_paper import STRATEGIES, validate_risk
+        config = archive.get('config', {})
+        if not isinstance(config, dict) or set(config) != {'strategy', 'risk', 'fee_per_contract'} or config['strategy'] not in STRATEGIES:
+            raise ValueError("Unsupported experiment configuration")
+        validate_risk(config['risk'], config['fee_per_contract'])
     state = ndx_paper.initial_state()
     previous = digest({k: v for k, v in archive.items() if k != "records"})
     for sequence, record in enumerate(archive["records"], 1):
@@ -130,8 +164,10 @@ def main():
     parser.add_argument("--observed-at", help="Explicit timezone-aware observation time")
     parser.add_argument("--init", action="store_true")
     args = parser.parse_args()
-    if os.getenv("TRADING_MODE", "paper").lower() != "paper" or os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() != "false":
-        parser.error("Paper mode with live orders disabled required")
+    if (os.getenv("TRADING_MODE", "paper").lower() != "paper"
+            or os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() != "false"
+            or os.getenv("ALLOW_0DTE", "false").lower() != "false"):
+        parser.error("Paper mode with live orders and 0DTE disabled required")
     if bool(args.snapshot) != bool(args.observed_at):
         parser.error("Snapshot and observation time must be supplied together")
     import fcntl
