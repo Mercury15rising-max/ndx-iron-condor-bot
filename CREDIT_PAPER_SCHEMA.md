@@ -130,7 +130,11 @@ MAX_TRADES_PER_DAY (1), MAX_TOTAL_OPEN_RISK (750), MAX_POSITIONS_PER_FAMILY (1),
 profit/stop thresholds and entry/exit windows. Defaults shown are repository
 defaults; runtime overrides are captured. Lmax must not exceed per-trade risk,
 total-open-risk allowance, or pre-entry simulated cash. No concurrent positions
-are supported. The archive freezes risk/fees/strategy for reproducible replay;
+are supported. Observed condor and butterfly runs now share one durable bot
+portfolio at /workspace/ndxp-state/observed-portfolio.sqlite3; position count,
+daily entry count, daily realized P&L, open risk and simulated cash are joint.
+See PAPER_READINESS.md for registration, recovery and selection-plan requirements.
+The archive freezes risk/fees/strategy for reproducible replay;
 later environment changes do not silently alter the experiment. A 30-trade
 review gate remains, and no result promotes the engine to live trading.
 
@@ -141,7 +145,8 @@ source .venv/bin/activate
 export TRADING_MODE=paper ROBINHOOD_LIVE_ORDERS=false ALLOW_0DTE=false
 python paper_pipeline.py observed-bundle.json \
   --archive /workspace/ndxp-state/condor-archive.json \
-  --strategy iron_condor --fee-per-contract 0.50 --init
+  --strategy iron_condor --fee-per-contract 0.50 \
+  --selection-plan /workspace/ndxp-state/condor-selection-plan.json --init
 python paper_pipeline.py next-observed-bundle.json \
   --archive /workspace/ndxp-state/condor-archive.json
 python paper_replay.py /workspace/ndxp-state/condor-archive.json
@@ -154,7 +159,9 @@ debit-spread archive separate. Code fingerprint changes mean old archives must
 be replayed with their original code version; no migration/reset is performed.
 
 Fixture runs require `--historical --allow-fixtures`, source.kind=fixture, and
-a separately named fixture archive. CLI rejects fixture/observed source mixing
+a separately named fixture archive/portfolio. New observed credit archives also
+require a frozen explicit selection plan; missing automatic selection rules are
+documented in PAPER_READINESS.md. CLI rejects fixture/observed source mixing
 and resets. No observed bundle is generated from synthetic data. Forward
 observations must be <=60 seconds old; offline historical observations must
 explicitly use --historical and retain their original timestamps.

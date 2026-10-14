@@ -130,6 +130,10 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract):
     selected_quotes = {i['id']: deepcopy(quotes[i['id']]) for i in legs.values()}
     fee = number(fee_per_contract)*4  # one contract per leg, every modeled side
     day = session['date']
+    portfolio = snapshot.get('portfolio_context')
+    if portfolio is not None and (not isinstance(portfolio, dict) or set(portfolio) != {'open_positions','open_risk','daily_pnl','trades_today','cash'}):
+        raise ValueError('Malformed shared portfolio context')
+    daily_pnl = number(portfolio['daily_pnl']) if portfolio else number(state['daily_pnl'].get(day,0))
     if position:
         gross = close_debit(legs, quotes)
         cost = gross + number(position['exit_fee'])
@@ -138,7 +142,7 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract):
         stop = number(position['gross_entry_credit'])*number(risk['stop_loss_multiple'])
         target = number(position['gross_entry_credit'])*(1-number(risk['profit_target_pct'])/100)
         local_time = now.astimezone(NY).time()
-        action = ('KILL_SWITCH' if number(state['daily_pnl'].get(day, 0)) <= -number(risk['max_daily_loss'])
+        action = ('KILL_SWITCH' if daily_pnl <= -number(risk['max_daily_loss'])
                   else 'STOP_LOSS' if gross >= stop
                   else 'TAKE_PROFIT' if gross <= target
                   else 'TIME_EXIT' if (local_time >= time.fromisoformat(risk['exit_only_start'])
@@ -159,9 +163,12 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract):
     if snapshot.get('complete') is not True:
         return finish('NO_TRADE', 'Complete contract/quote universe required')
     entries = sum(e['action']=='PAPER_ENTRY' and timestamp(e['at']).astimezone(NY).date().isoformat()==day for e in state['events'])
-    if (entries >= number(risk['max_trades_per_day']) or number(risk['max_open_positions']) < 1
+    if portfolio:
+        entries = number(portfolio['trades_today'])
+    other_positions = number(portfolio['open_positions']) if portfolio else number(0)
+    if (entries >= number(risk['max_trades_per_day']) or other_positions >= number(risk['max_open_positions'])
             or number(risk['max_positions_per_family']) < 1
-            or number(state['daily_pnl'].get(day,0)) <= -number(risk['max_daily_loss'])):
+            or daily_pnl <= -number(risk['max_daily_loss'])):
         return finish('NO_TRADE', 'Configured daily/position risk limit reached')
     if state['completed'] >= 30:
         return finish('COMPLETE', '30 completed trades; review required')
@@ -170,7 +177,9 @@ def step(state, snapshot, now, *, strategy, risk, fee_per_contract):
     maximum_loss = width_cash-gross+fee*2
     if gross <= 0 or gross >= width_cash or net <= 0:
         return finish('NO_TRADE', 'Invalid fee-inclusive credit relative to protective width')
-    if maximum_loss > min(number(risk['max_risk_per_trade']), number(risk['max_total_open_risk']), number(state['balance'])):
+    cash = number(portfolio['cash']) if portfolio else number(state['balance'])
+    total_risk = number(portfolio['open_risk']) if portfolio else number(0)
+    if maximum_loss > min(number(risk['max_risk_per_trade']), number(risk['max_total_open_risk'])-total_risk, cash):
         return finish('NO_TRADE', 'Fee-inclusive maximum loss exceeds configured risk/cash limits', max_loss=str(maximum_loss))
     position = dict(strategy=strategy, legs=legs, entry_quotes=selected_quotes,
                     opened_at=now.isoformat(), quantity=1, multiplier=100,

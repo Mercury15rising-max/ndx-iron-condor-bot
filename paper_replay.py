@@ -21,7 +21,7 @@ def digest(value):
 def implementation():
     root = Path(__file__).parent
     return digest({"sources": {p: (root / p).read_text() for p in
-                   ("ndx_paper.py", "credit_paper.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
+                   ("ndx_paper.py", "credit_paper.py", "paper_portfolio.py", "ema_signals.py", "exchange_session.py", "paper_replay.py")},
                    "calendar_version": version("exchange-calendars")})
 
 
@@ -182,6 +182,8 @@ def main():
         else:
             parser.error("Archive missing; explicit --init required")
         if args.snapshot:
+            if archive['config'].get('strategy') in ('iron_condor', 'iron_butterfly'):
+                parser.error('Credit observations must use paper_pipeline.py for shared portfolio enforcement; replay here is read-only')
             archive = observe(archive, json.loads(args.snapshot.read_text()), datetime.fromisoformat(args.observed_at))
         _, report = replay(archive)
         if args.snapshot or args.init:

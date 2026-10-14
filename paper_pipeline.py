@@ -103,6 +103,8 @@ def main():
     parser.add_argument("--strategy", choices=("call_debit_spread", "iron_condor", "iron_butterfly"),
                         help="New archive strategy; existing archives retain their strategy")
     parser.add_argument("--fee-per-contract", help="Credit strategy modeled fee per leg per side; default 0.50")
+    parser.add_argument("--portfolio", type=Path, help="Shared fixture database override; observed runs use the fixed bot portfolio")
+    parser.add_argument("--selection-plan", type=Path, help="Frozen explicit contract plan required for new observed credit experiments")
     parser.add_argument("--historical", action="store_true", help="Explicit offline replay, not forward fills")
     parser.add_argument("--allow-fixtures", action="store_true", help="Synthetic regression validation only")
     args = parser.parse_args()
@@ -116,6 +118,14 @@ def main():
         parser.error("Forward bundle must be observed within 60 seconds; use --historical for offline replay")
     if args.allow_fixtures and not args.historical:
         parser.error("Fixtures are only allowed in explicitly historical regression runs")
+    from paper_portfolio import OBSERVED_PORTFOLIO, apply_observation, locked_portfolio, reconcile_exports
+    fixture = bundle.get('source', {}).get('kind') == 'fixture'
+    portfolio_path = args.portfolio or (args.archive.parent / 'fixture-portfolio.sqlite3' if fixture else OBSERVED_PORTFOLIO)
+    if not fixture and portfolio_path.resolve() != OBSERVED_PORTFOLIO.resolve():
+        parser.error('Observed credit runs cannot select an independent portfolio')
+    if portfolio_path.exists():
+        with locked_portfolio(portfolio_path) as db:
+            reconcile_exports(db)  # recover committed observations before reading JSON
     import fcntl
     args.archive.parent.mkdir(parents=True, exist_ok=True)
     with args.archive.with_suffix(".lock").open("a") as lock:
@@ -140,6 +150,13 @@ def main():
         prior_sources = [r["snapshot"].get("provenance", {}).get("source") for r in archive["records"]]
         if any(s != snapshot["provenance"]["source"] for s in prior_sources):
             parser.error("Do not mix fixture/observed sources or experiment provenance")
+        if saved_strategy in ('iron_condor', 'iron_butterfly'):
+            plan = json.loads(args.selection_plan.read_text()) if args.selection_plan else None
+            archive, state, report = apply_observation(portfolio_path, args.archive, archive, snapshot, now,
+                                                       initializing=args.init, plan=plan)
+            print(json.dumps({"action": state["events"][-1]["action"], "report": report,
+                              "provenance": snapshot["provenance"]}, indent=2))
+            return
         archive = observe(archive, snapshot, now)
         state, report = replay(archive)
         name = None
