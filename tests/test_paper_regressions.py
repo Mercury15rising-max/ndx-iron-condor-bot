@@ -12,11 +12,65 @@ import unittest
 from credit_paper import configured_risk
 from ndx_paper import initial_state, step
 from paper_pipeline import build_snapshot
+from paper_replay import new_archive, observe, replay, accounting
 from test_credit_paper import snapshot, config
 from test_paper_pipeline import bundle, NOW
 
 
 class PaperRegressionTests(unittest.TestCase):
+    def test_malformed_candle_time_allows_exit_but_rejects_entry(self):
+        state, _ = step(initial_state(), snapshot(), NOW, **config())
+        later = NOW.replace(hour=19, minute=30)
+        for invalid in (None, 123, [], {}):
+            with self.subTest(close_time=invalid):
+                b = bundle(later)
+                b['options'] = snapshot(now=later)
+                b['candles'][0]['close_time'] = invalid
+                with self.assertRaises(ValueError):
+                    build_snapshot(b, later, allow_fixtures=True)
+                outgoing = build_snapshot(b, later, allow_fixtures=True, exit_only=True)
+                after, event = step(state, outgoing, later, **config())
+                self.assertEqual(event['action'], 'TIME_EXIT')
+                self.assertIsNone(after['position'])
+                self.assertIsNotNone(outgoing['provenance']['history_unavailable'])
+
+    def test_exit_uses_persisted_contracts_and_still_requires_quotes(self):
+        archive = observe(new_archive('iron_condor'), snapshot(), NOW)
+        later = NOW.replace(hour=19, minute=30)
+        for field in ('chains', 'instruments'):
+            for invalid in (None, [None], [{'id': []}]):
+                with self.subTest(field=field, metadata=invalid):
+                    b = bundle(later)
+                    b['options'] = snapshot(now=later)
+                    b['options'][field] = invalid
+                    with self.assertRaises(ValueError):
+                        build_snapshot(b, later, allow_fixtures=True)
+                    outgoing = build_snapshot(b, later, allow_fixtures=True, exit_only=True)
+                    state, report = replay(observe(archive, outgoing, later))
+                    self.assertEqual(state['events'][-1]['action'], 'TIME_EXIT')
+                    self.assertEqual(report['completed_trades'], 1)
+                    b['options']['quotes'].pop()
+                    outgoing = build_snapshot(b, later, allow_fixtures=True, exit_only=True)
+                    state, report = replay(observe(archive, outgoing, later))
+                    self.assertEqual(state['events'][-1]['action'], 'UNRESOLVED')
+                    self.assertTrue(report['unresolved_position'])
+
+    def test_numeric_decimal_strikes_reconcile_through_replay(self):
+        s = snapshot()
+        for instrument, strike in zip(s['instruments'], (95.1, 100.2, 110.2, 115.3)):
+            instrument['strike_price'] = strike
+        archive = observe(new_archive('iron_condor'), s, NOW)
+        state, _ = replay(archive)
+        self.assertEqual(state['position']['max_loss'], '214.00')
+        later = NOW.replace(hour=19, minute=30)
+        archive = observe(archive, snapshot(now=later), later)
+        state, report = replay(archive)
+        self.assertEqual(report['completed_trades'], 1)
+        self.assertEqual(report['cash'], '2956.00')
+        state['events'][0]['position']['max_loss'] = '1'
+        with self.assertRaises(ValueError):
+            accounting(state)
+
     def test_bad_decimal_candle_does_not_block_whole_position_exit(self):
         state,_=step(initial_state(),snapshot(),NOW,**config())
         later=NOW.replace(hour=19,minute=30)

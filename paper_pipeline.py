@@ -25,6 +25,8 @@ def validate_history(bundle, now):
     for bar in bars:
         if not isinstance(bar, dict):
             raise ValueError("Malformed candle")
+        if not isinstance(bar.get("close_time"), str):
+            raise ValueError("Candle close_time must be a timezone-aware ISO string")
         end = timestamp(bar["close_time"])
         if (bar.get("symbol") != "QQQ" or bar.get("timeframe_seconds") != 300
                 or bar.get("closed") is not True or bar.get("interpolated") is True
@@ -76,6 +78,10 @@ def build_snapshot(bundle, now, *, allow_fixtures=False, exit_only=False):
     if not isinstance(option_data, dict):
         raise ValueError("Malformed options export")
     for name in ("chains", "instruments", "quotes"):
+        # Exits use persisted contracts. Preserve incoming entry metadata for
+        # audit, but do not let its availability prevent quote-based exits.
+        if exit_only and name in ("chains", "instruments"):
+            continue
         rows = option_data.get(name, [])
         if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
             raise ValueError(f"Malformed {name}")

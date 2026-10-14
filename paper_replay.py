@@ -66,7 +66,7 @@ def accounting(state):
                 net = gross-fee
                 if fee < 0 or Decimal(p['exit_fee']) < 0 or gross != Decimal(p['gross_entry_credit']) or net != Decimal(p['net_entry_credit']):
                     raise ValueError('Credit entry accounting mismatch')
-                strikes = {r: Decimal(i['strike_price']) for r,i in p['legs'].items()}
+                strikes = {r: Decimal(str(i['strike_price'])) for r,i in p['legs'].items()}
                 width = max(strikes['short_put']-strikes['long_put'], strikes['long_call']-strikes['short_call'])*100
                 if width-gross+fee+Decimal(p['exit_fee']) != Decimal(p['max_loss']):
                     raise ValueError('Credit maximum-loss accounting mismatch')
