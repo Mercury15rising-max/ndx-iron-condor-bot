@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import tempfile
 from zoneinfo import ZoneInfo
+from ema_signals import evaluate_ema, evaluate_setup
 
 CT = ZoneInfo("America/Chicago")
 D = Decimal
@@ -58,7 +59,7 @@ def overnight_session(now):
     return None
 
 
-def step(state, snapshot, now):
+def step(state, snapshot, now, *, entry_signal="baseline"):
     """Return new state + event. Caller must persist them together atomically.
 
     snapshot: chains/instruments arrays, quotes array of quote objects (not wrappers),
@@ -67,6 +68,8 @@ def step(state, snapshot, now):
     """
     if now.tzinfo is None:
         raise ValueError("now must be timezone-aware")
+    if entry_signal not in ("baseline", "fast_cross", "triple_cross", "vwap_flip", "ema9_rollback"):
+        raise ValueError("Unknown entry signal")
     if state.get("version") != 1:
         raise ValueError("Unsupported paper state")
     if state["last_observed"] and now <= timestamp(state["last_observed"]):
@@ -127,6 +130,20 @@ def step(state, snapshot, now):
     if snapshot.get("complete") is not True:
         return finish("NO_TRADE", "Complete contract/quote snapshot required for selection")
 
+    signal = None
+    if entry_signal != "baseline":
+        signal = evaluate_ema(snapshot.get("signal_bars", []), now,
+                              symbol=snapshot.get("signal_symbol"), timeframe_seconds=300)
+        if entry_signal in ("vwap_flip", "ema9_rollback"):
+            signal = evaluate_setup(snapshot.get("signal_bars", []), now,
+                                    symbol=snapshot.get("signal_symbol"), mode=entry_signal,
+                                    session_start=snapshot.get("signal_session_start"))
+        if not signal["ready"] or signal[entry_signal] != "bullish":
+            return finish("NO_TRADE", "Fresh bullish entry signal required", signal=signal)
+        key = signal["symbol"] + ":" + signal["bar_close"]
+        if state.get("last_signal_bar") == key:
+            return finish("NO_TRADE", "Crossover bar already used", signal=signal)
+
     chains = {c["id"] for c in snapshot.get("chains", [])
               if c.get("symbol") == "SPXW" and c.get("settle_on_open") is False
               and c.get("extended_hours_state") == "enabled"
@@ -183,7 +200,10 @@ def step(state, snapshot, now):
         return finish("NO_TRADE", "Selected spread violates positive-debit/cost limit",
                       calculated_cost=str(entry), long=long_i, short=short_i)
     state["position"] = {"long": long_i, "short": short_i, "opened_at": now.isoformat(),
-                         "entry_cost": str(entry), "long_quote": long, "short_quote": short}
+                         "entry_cost": str(entry), "long_quote": long, "short_quote": short,
+                         "entry_signal": entry_signal, "signal": signal}
+    if signal:
+        state["last_signal_bar"] = signal["symbol"] + ":" + signal["bar_close"]
     state["balance"] = str(number(state["balance"]) - entry)
     return finish("PAPER_ENTRY", "Hypothetical quote-based fill; $2 modeled entry fees",
                   position=state["position"])
@@ -194,6 +214,8 @@ def main():
     parser.add_argument("snapshot", type=Path)
     parser.add_argument("--state", type=Path, default=Path("data/spxw_paper_state.json"))
     parser.add_argument("--init", action="store_true", help="Explicitly create a new paper ledger")
+    parser.add_argument("--entry-signal", choices=("baseline", "fast_cross", "triple_cross", "vwap_flip", "ema9_rollback"),
+                        default="baseline", help="Opt-in completed 5-minute EMA entry filter")
     args = parser.parse_args()
     if os.getenv("TRADING_MODE", "paper").lower() != "paper" or os.getenv(
             "ROBINHOOD_LIVE_ORDERS", "false").lower() != "false":
@@ -210,7 +232,8 @@ def main():
             state = initial_state()
         else:
             parser.error("Missing ledger; use --init only for a genuinely new paper test")
-        state, event = step(state, json.loads(args.snapshot.read_text()), datetime.now(timezone.utc))
+        state, event = step(state, json.loads(args.snapshot.read_text()), datetime.now(timezone.utc),
+                            entry_signal=args.entry_signal)
         name = None
         try:
             with tempfile.NamedTemporaryFile(mode="w", dir=args.state.parent, delete=False) as out:
