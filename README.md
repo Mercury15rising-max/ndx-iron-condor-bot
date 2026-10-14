@@ -1,5 +1,8 @@
 # NDX Iron Condor Bot
 
+The repository now includes a tested controlled live-order adapter; see
+**Controlled live execution adapter** below for its deployment prerequisites.
+
 NDX iron condor trading assistant with risk controls, dry-run execution, Robinhood MCP integration, trade journaling, and Telegram alerts.
 
 ## Current status
@@ -100,3 +103,48 @@ The research-only watchlist now also includes:
 - **AMAT, LRCX, KLAC** — semiconductor equipment/capex-cycle confirmation.
 
 These symbols remain **context-only**. They are excluded from index-strategy P&L and are not live trade targets. Their purpose is to improve NDX/QQQ regime detection using IV, skew, volume, open interest, and event-volatility features.
+
+
+## Controlled live execution adapter
+
+`live_execution.py` adds a two-stage iron-condor execution path for an
+authenticated `RobinhoodCloudMCP` client. It uses the order schema exposed by
+the connected Robinhood Trading plugin: instrument UUIDs, four opening legs,
+a positive user-supplied net credit, limit/GFD orders, regular hours, and a
+persistent UUID `ref_id`. It does not infer a live price from leg quotes.
+
+The caller supplies the account number, quantity, risk ceiling, a persistent
+SQLite journal path, and an async `entry_gate`. That gate must obtain current
+broker state and enforce market sessions/holidays, fresh quotes, event blocks,
+daily loss/trade limits, and exposure including pending orders. It is checked
+at review and again before submission. Do not substitute heartbeat or paper
+state for the live gate.
+
+The adapter checks account accessibility, Level 3 permissions, individual
+margin/limited-margin status, and active tradable standard index contracts.
+It recomputes expiration maximum loss from wing width and the specified net
+credit. This calculation excludes fees and execution slippage.
+
+Call `review(...)` first and display the complete payload and broker review,
+including alert text verbatim. Only after the user approves that exact review
+and acknowledges its alerts may the application call
+`submit(ref_id, confirmed=True)`. Tickets expire after 30 seconds.
+The stored payload cannot be changed by mutating the returned review.
+Account eligibility is checked again before sending.
+
+Each submission attempt is committed to SQLite before the broker call.
+After a timeout or uncertain response, do not create another ticket or retry
+automatically: reconcile the existing UUID with broker order history first.
+A successful response may mean queued or awaiting Robinhood approval; it is
+not proof of a fill. The caller must monitor order status, fills, positions,
+and exits. Keep the SQLite journal on persistent storage across restarts.
+
+**Deployment status:** This module is tested with simulated MCP responses.
+It is not attached to the scheduled worker or cloud web routes. The existing
+worker still runs paper heartbeats, and defaults remain paper mode. Enabling
+environment flags alone cannot enable live trading. Deployment still requires
+verified cloud OAuth, a live entry gate, broker response validation, position
+and exit reconciliation, and the exact approved account/order settings.
+No live order was reviewed or placed during development.
+
+

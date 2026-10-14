@@ -5,23 +5,19 @@ from live_market_data import RobinhoodMarketDataProvider
 
 
 class FakeRobinhoodClient:
-    def get_option_chain(self, symbol, expiration):
-        return [
-            {
-                "strike": "25000",
-                "option_type": "put",
-                "bid": "4.00",
-                "ask": "4.40",
-                "delta": "-0.12",
-            },
-            {
-                "strike": "25500",
-                "option_type": "call",
-                "bid": "3.50",
-                "ask": "3.90",
-                "delta": "0.11",
-            },
-        ]
+    def get_option_instruments(self, **kwargs):
+        return {"data": {"instruments": [
+            {"id": "p1", "chain_symbol": kwargs["chain_symbol"],
+             "expiration_date": kwargs["expiration_dates"], "strike_price": "25000", "type": "put"},
+            {"id": "c1", "chain_symbol": kwargs["chain_symbol"],
+             "expiration_date": kwargs["expiration_dates"], "strike_price": "25500", "type": "call"},
+        ]}}
+
+    def get_option_quotes(self, **kwargs):
+        return {"data": {"results": [
+            {"quote": {"instrument_id": "p1", "bid_price": "4.00", "ask_price": "4.40", "delta": "-0.12"}},
+            {"quote": {"instrument_id": "c1", "bid_price": "3.50", "ask_price": "3.90", "delta": "0.11"}},
+        ]}}
 
 
 class LiveMarketDataTests(unittest.TestCase):
@@ -37,3 +33,4 @@ class LiveMarketDataTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
