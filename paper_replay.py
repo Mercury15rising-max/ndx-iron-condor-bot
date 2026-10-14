@@ -20,7 +20,7 @@ def digest(value):
 def implementation():
     root = Path(__file__).parent
     return digest({p: (root / p).read_text() for p in
-                   ("ndx_paper.py", "ema_signals.py", "paper_replay.py")})
+                   ("ndx_paper.py", "ema_signals.py", "session_bars.py", "paper_replay.py")})
 
 
 def new_archive():

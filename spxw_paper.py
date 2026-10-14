@@ -133,11 +133,13 @@ def step(state, snapshot, now, *, entry_signal="baseline"):
     signal = None
     if entry_signal != "baseline":
         signal = evaluate_ema(snapshot.get("signal_bars", []), now,
-                              symbol=snapshot.get("signal_symbol"), timeframe_seconds=300)
+                              symbol=snapshot.get("signal_symbol"), timeframe_seconds=300,
+                              session_calendar=snapshot.get("signal_calendar"))
         if entry_signal in ("vwap_flip", "ema9_rollback"):
             signal = evaluate_setup(snapshot.get("signal_bars", []), now,
                                     symbol=snapshot.get("signal_symbol"), mode=entry_signal,
-                                    session_start=snapshot.get("signal_session_start"))
+                                    session_start=snapshot.get("signal_session_start"),
+                                    session_calendar=snapshot.get("signal_calendar"))
         if not signal["ready"] or signal[entry_signal] != "bullish":
             return finish("NO_TRADE", "Fresh bullish entry signal required", signal=signal)
         key = signal["symbol"] + ":" + signal["bar_close"]

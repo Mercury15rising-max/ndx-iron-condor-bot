@@ -1,6 +1,7 @@
 """Closed-candle EMA research signals. No execution or market-data access."""
 from datetime import datetime
 from math import isfinite
+from session_bars import expected_closes
 
 
 def stamp(value):
@@ -29,7 +30,7 @@ def crossover(previous_fast, previous_slow, fast, slow):
     return "none"
 
 
-def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300):
+def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300, session_calendar=None):
     """Use only closed candles; reject gaps, mixed feeds and stale signals.
 
     106 closed candles allow 105 warmup observations plus a comparison bar.
@@ -53,9 +54,13 @@ def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300):
             price = float(bar["close"])
             if not isfinite(price) or price <= 0 or bar.get("interpolated") is True:
                 raise ValueError("Invalid or interpolated close")
-            if closed and (end - closed[-1][0]).total_seconds() != timeframe_seconds:
+            if session_calendar is None and closed and (end - closed[-1][0]).total_seconds() != timeframe_seconds:
                 raise ValueError("Candle gap; do not forward-fill")
             closed.append((end, price))
+        if session_calendar is not None and closed:
+            actual = [c[0] for c in closed]
+            if actual != expected_closes(session_calendar, actual[0], actual[-1], timeframe_seconds):
+                raise ValueError("Missing or off-session candle; do not forward-fill")
         if len(closed) < 106:
             raise ValueError("At least 106 completed candles required")
         if not 0 <= (now - closed[-1][0]).total_seconds() <= timeframe_seconds:
@@ -86,9 +91,9 @@ def evaluate_ema(bars, now, *, symbol, timeframe_seconds=300):
         return {**unavailable, "reason": str(error)}
 
 
-def evaluate_setup(bars, now, *, symbol, mode, session_start=None):
+def evaluate_setup(bars, now, *, symbol, mode, session_start=None, session_calendar=None):
     """Explicit session VWAP flip or same-bar 9 EMA pullback/reclaim."""
-    result = evaluate_ema(bars, now, symbol=symbol)
+    result = evaluate_ema(bars, now, symbol=symbol, session_calendar=session_calendar)
     result.update(vwap_flip="none", ema9_rollback="none")
     if not result["ready"]:
         return result
@@ -111,6 +116,9 @@ def evaluate_setup(bars, now, *, symbol, mode, session_start=None):
             session = [b for b in closed if stamp(b["close_time"]) > start]
             if len(session) < 2 or (stamp(session[0]["close_time"]) - start).total_seconds() != 300:
                 raise ValueError("Complete session history from explicit anchor required")
+            if any((stamp(b["close_time"]) - stamp(a["close_time"])).total_seconds() != 300
+                   for a, b in zip(session, session[1:])):
+                raise ValueError("VWAP anchor crosses session boundary or missing candle")
             numerator = denominator = 0.0
             values = []
             for bar in session:
