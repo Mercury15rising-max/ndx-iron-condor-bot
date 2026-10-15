@@ -1,5 +1,9 @@
 # NDX Iron Condor Bot
 
+IBKR paper-account connection and NDX metadata discovery are available through
+`ibkr_paper_probe.py`. See [IBKR_PAPER_SETUP.md](IBKR_PAPER_SETUP.md) for the local
+setup and outstanding execution work. This separate diagnostic never sends orders.
+
 NDX iron condor trading assistant with risk controls, dry-run execution, Robinhood MCP integration, trade journaling, and Telegram alerts.
 
 ## Current status
