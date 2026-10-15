@@ -4,13 +4,13 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Settings:
-    trading_mode: str = os.getenv("TRADING_MODE", "paper")
+    trading_mode: str = os.getenv("TRADING_MODE", "live")
     symbol: str = os.getenv("SYMBOL", "NDX")
     chain_symbol: str = os.getenv("CHAIN_SYMBOL", "NDXP")
     max_trades_per_day: int = int(os.getenv("MAX_TRADES_PER_DAY", "1"))
     max_open_positions: int = int(os.getenv("MAX_OPEN_POSITIONS", "1"))
-    max_risk_per_trade: float = float(os.getenv("MAX_RISK_PER_TRADE", "500"))
-    max_daily_loss: float = float(os.getenv("MAX_DAILY_LOSS", "750"))
+    max_risk_per_trade: float = float(os.getenv("MAX_RISK_PER_TRADE", "75"))
+    max_daily_loss: float = float(os.getenv("MAX_DAILY_LOSS", "75"))
     short_delta_min: float = float(os.getenv("SHORT_DELTA_MIN", "0.10"))
     short_delta_max: float = float(os.getenv("SHORT_DELTA_MAX", "0.15"))
     wing_width: float = float(os.getenv("WING_WIDTH", "25"))
@@ -19,7 +19,7 @@ class Settings:
     profit_target_pct: float = float(os.getenv("PROFIT_TARGET_PCT", "50"))
     stop_loss_multiple: float = float(os.getenv("STOP_LOSS_MULTIPLE", "2.0"))
     allow_0dte: bool = os.getenv("ALLOW_0DTE", "false").lower() == "true"
-    robinhood_live_orders: bool = os.getenv("ROBINHOOD_LIVE_ORDERS", "false").lower() == "true"
+    robinhood_live_orders: bool = os.getenv("ROBINHOOD_LIVE_ORDERS", "true").lower() == "true"
     max_quote_age_seconds: int = int(os.getenv("MAX_QUOTE_AGE_SECONDS", "30"))
     max_consecutive_losses: int = int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2"))
     enable_spxw_0dte_paper: bool = os.getenv("ENABLE_SPXW_0DTE_PAPER", "false").lower() == "true"
@@ -34,7 +34,7 @@ class Settings:
     min_option_volume: int = int(os.getenv("MIN_OPTION_VOLUME", "10"))
     min_return_on_risk: float = float(os.getenv("MIN_RETURN_ON_RISK", "0.10"))
     min_credit_to_width: float = float(os.getenv("MIN_CREDIT_TO_WIDTH", "0.10"))
-    max_total_open_risk: float = float(os.getenv("MAX_TOTAL_OPEN_RISK", "750"))
+    max_total_open_risk: float = float(os.getenv("MAX_TOTAL_OPEN_RISK", "75"))
     max_positions_per_family: int = int(os.getenv("MAX_POSITIONS_PER_FAMILY", "1"))
     loss_cooldown_minutes: int = int(os.getenv("LOSS_COOLDOWN_MINUTES", "60"))
     event_block_before_minutes: int = int(os.getenv("EVENT_BLOCK_BEFORE_MINUTES", "45"))
@@ -42,3 +42,4 @@ class Settings:
 
 
 SETTINGS = Settings()
+

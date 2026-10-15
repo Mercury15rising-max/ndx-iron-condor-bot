@@ -4,7 +4,9 @@ NDX iron condor trading assistant with risk controls, dry-run execution, Robinho
 
 ## Current status
 
-Version 1 is intentionally **paper-mode first**.
+Live mode is requested in the review branch configuration. `main.py` no longer runs the paper-data demo or order previews. It reports `LIVE_UNAVAILABLE` because supported process authentication and actual order submission are not implemented. This is not a running live bot. No deployment or production setting change has occurred.
+
+Historical simulation modules and archives remain preserved for research.
 
 Implemented:
 - NDX option quote and iron condor data models
@@ -15,7 +17,7 @@ Implemented:
 - Paper market-data provider
 - Robinhood MCP order-preview adapter
 - Unit tests for strategy and risk management
-- End-to-end dry-run pipeline in `main.py`
+- Runtime readiness check in `main.py`
 
 Not enabled yet:
 - Live Robinhood order submission
@@ -26,9 +28,10 @@ Not enabled yet:
 ## Safety defaults
 
 The repository ships with:
-- `TRADING_MODE=paper`
+- `TRADING_MODE=live`
 - `ALLOW_0DTE=false`
-- `ROBINHOOD_LIVE_ORDERS=false`
+- `ROBINHOOD_LIVE_ORDERS=true`
+- Default per-trade risk, daily realized-loss limit, and total open risk: $75 each
 - Maximum one trade per day
 - Maximum one open position
 
@@ -100,3 +103,10 @@ The research-only watchlist now also includes:
 - **AMAT, LRCX, KLAC** — semiconductor equipment/capex-cycle confirmation.
 
 These symbols remain **context-only**. They are excluded from index-strategy P&L and are not live trade targets. Their purpose is to improve NDX/QQQ regime detection using IV, skew, volume, open interest, and event-volatility features.
+
+
+## Live execution preparation
+
+Live mode and the live-order configuration flag are enabled in this branch at the user's request. Paper simulation is removed from the default entry point. The broker still has no implemented submission transport, and supported Robinhood authentication is not available inside the bot environment. Startup reports these blockers and exits without sending orders. Existing deployment settings and all archives remain unchanged.
+
+Default per-trade risk, daily realized-loss threshold, and aggregate open-risk limit are $75 each. Environment overrides must be reviewed. These are modeled risk settings, not a guaranteed $75 stop or fee-inclusive loss bound. Fee-inclusive risk, remaining daily budget, durable position reconciliation, verified order schema, and continuous exit handling must be completed before any live order can be executed. Historical experiments retain their own frozen rules and must not be reset or reused as a live ledger.

@@ -17,7 +17,7 @@ def evaluate_entry_safety(
     now: datetime | None = None,
     max_quote_age_seconds: int = 30,
     daily_realized_pnl: float = 0.0,
-    max_daily_loss: float = 750.0,
+    max_daily_loss: float = 75.0,
     open_positions: int = 0,
     max_open_positions: int = 1,
     trades_today: int = 0,
