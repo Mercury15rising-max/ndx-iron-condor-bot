@@ -11,13 +11,15 @@ class FakeRobinhoodClient:
 
     def get_option_instruments(
         self, *, chain_symbol, expiration_dates,
-        state="active", tradability="tradable",
+        state="active", cursor=None,
     ):
-        self.instrument_request = (chain_symbol, expiration_dates, state, tradability)
+        self.instrument_request = (chain_symbol, expiration_dates, state)
         return {"data": {"instruments": [
             {"id": "put-id", "chain_symbol": chain_symbol,
+             "expiration_date": expiration_dates, "state": "active", "tradability": "tradable",
              "strike_price": "25000", "type": "put"},
             {"id": "call-id", "chain_symbol": chain_symbol,
+             "expiration_date": expiration_dates, "state": "active", "tradability": "tradable",
              "strike_price": "25500", "type": "call"},
         ]}}
 
@@ -41,7 +43,7 @@ class LiveMarketDataTests(unittest.TestCase):
 
         self.assertEqual(
             client.instrument_request,
-            ("NDX", "2026-10-16", "active", "tradable"),
+            ("NDX", "2026-10-16", "active"),
         )
         self.assertEqual(client.quote_request, ["put-id", "call-id"])
         self.assertEqual(len(quotes), 2)
@@ -57,3 +59,4 @@ class LiveMarketDataTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

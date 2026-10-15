@@ -47,8 +47,9 @@ def evaluate_entry_safety(
     if now is None:
         now = datetime.now(timezone.utc)
 
-    if quote_timestamp.tzinfo is None:
-        quote_timestamp = quote_timestamp.replace(tzinfo=timezone.utc)
+    if (quote_timestamp.tzinfo is None or quote_timestamp.utcoffset() is None
+            or now.tzinfo is None or now.utcoffset() is None):
+        return SafetyDecision("reject", "Timezone-aware quote and observation timestamps required.")
 
     age = (now - quote_timestamp.astimezone(timezone.utc)).total_seconds()
     if age < 0:
@@ -60,3 +61,4 @@ def evaluate_entry_safety(
         )
 
     return SafetyDecision("allow", "Entry safety checks passed.")
+
