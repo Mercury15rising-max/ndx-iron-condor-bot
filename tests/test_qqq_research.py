@@ -43,7 +43,11 @@ class QQQResearchTests(unittest.TestCase):
     def test_quantity_and_fees_are_total_not_per_contract(self):
         self.assertEqual(total_risk(37, 12, 6, 50)['max_loss_including_fees'], 450)
         self.assertFalse(total_risk(37, 12, 6, 50)['within_cap'])
-        self.assertTrue(total_risk(37, 1, 6, 50)['within_cap'])
+        self.assertFalse(total_risk(37, 1, 6, 50)['eligible'])
+        self.assertTrue(total_risk(37, 10, 6, 450)['eligible'])
+        self.assertTrue(total_risk(37, 12, 6, 450)['eligible'])
+        self.assertFalse(total_risk(37, 12, 6.01, 450)['eligible'])
+        self.assertFalse(total_risk(50, 10, 0, 1000)['eligible'])
         with self.assertRaises(ValueError):
             total_risk(37, True, 0, 50)
 
