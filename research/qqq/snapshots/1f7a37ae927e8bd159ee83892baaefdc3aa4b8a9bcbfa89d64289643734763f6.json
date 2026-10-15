@@ -1,0 +1,40 @@
+{
+  "captured_at": "2026-10-15T16:48:55.901981+00:00",
+  "payload": {
+    "as_of": "2026-10-15T12:45:00-04:00",
+    "atr14": 8.96427857142855,
+    "daily_return_std20": 0.010481913380573004,
+    "ema": {
+      "8": 743.5378902645464,
+      "13": 743.069056610227,
+      "21": 739.6234579750197
+    },
+    "entry_approved": false,
+    "excluded_bars": 0,
+    "input_archive_sha256": "6d60cd801828c6956e8e0c5f506f2f87da1f050a9b0f9fabdaff4344ca64592f",
+    "last_close": 728.95,
+    "last_session": "2026-10-14",
+    "limitations": [
+      "Daily trend is context, not an intraday entry signal.",
+      "Requires fresh options quotes, event checks and fee-inclusive total risk.",
+      "No option P&L can be inferred from underlying history alone.",
+      "Missing trading sessions are not reconstructed; source completeness is not certified."
+    ],
+    "regime": "mixed",
+    "research_only": true,
+    "return5": -0.03798186689190075,
+    "return_total": 0.14363037339190465,
+    "sessions": 127,
+    "slope20_points_per_session": 0.8903082706766922,
+    "sma100": 720.8348,
+    "sma20": 742.5475,
+    "sma50": 726.6564,
+    "stale": false,
+    "strategy_families_to_research": [],
+    "symbol": "QQQ",
+    "version": "qqq-research-v1"
+  },
+  "research_only": true,
+  "schema_version": 1,
+  "source": "qqq-research-v1"
+}
