@@ -82,3 +82,14 @@ Validation at base commit `7c37fd3`: five new research tests pass. Full suite:
 167 tests with the exact same 28 failures and 8 errors; no new failing test names.
 The pre-existing live/paper configuration failures remain unresolved and block
 any claim that the whole bot is validated for deployment.
+
+## Current QQQ sizing policy
+
+Maximum total modeled loss is $450 including estimated entry and exit fees.
+Minimum quantity is 10 complete strategy units: for a condor this means at least
+10 contracts on each of four legs, not ten contracts summed across all legs.
+The risk helper returns separate budget and quantity checks plus `eligible`;
+consumers must use `eligible`. A requested higher budget cannot bypass $450;
+a lower requested budget is honored. If ten units do not fit, reject the setup.
+This is a research eligibility gate, not broker enforcement or a guaranteed stop.
+No live runtime risk defaults or existing position records are changed.
