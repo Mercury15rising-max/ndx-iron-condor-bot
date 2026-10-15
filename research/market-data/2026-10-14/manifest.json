@@ -1,0 +1,32 @@
+{
+  "dataset": "strategy-market-data-2026-10-14",
+  "schema": "research_collection_v1",
+  "source": "Robinhood Trading MCP read-only",
+  "completed_at": "2026-10-14T20:22:09.959Z",
+  "historical_research_only": true,
+  "execution_ready": false,
+  "original_timestamps_preserved": true,
+  "archive": {
+    "path": "strategy-data-2026-10-14.zip",
+    "bytes": 1131941,
+    "sha256": "a2c2b1d8e9e60b6b6f99e68e05d07b78c5466ab574428284dfdd3cf99f638d34"
+  },
+  "json": {
+    "member": "strategy-market-data-2026-10-14.json",
+    "bytes": 8297494,
+    "sha256": "2e070f99ce73c890dd05ebc9eb53b7d25c67057acaaaf8a4150f5c5d8f9c1566",
+    "identical_to_standalone_attachment": true
+  },
+  "counts": {
+    "equity_symbols": 14,
+    "equity_candles": 1092,
+    "option_quotes": 6770
+  },
+  "quality": {
+    "missing_delta": 653,
+    "invalid_bid_ask_or_sizes": 1403,
+    "quotes_older_than_60_seconds_at_batch_receipt": 6770,
+    "missing_official_option_close": 6716
+  },
+  "rules_reference_commit": "3dd4a7fc74c07599cfb46d98d792f9ecf904c73d"
+}

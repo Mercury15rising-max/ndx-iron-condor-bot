@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
+
+from exchange_session import session_at
 
 
 @dataclass(frozen=True)
@@ -29,19 +31,19 @@ def evaluate_market_session(
 ) -> SessionDecision:
     """Decide whether the bot may enter, monitor, or only exit.
 
-    Assumes the caller separately verifies that the exchange is open on the
-    calendar date. This function only enforces intraday time windows.
+    Enforces the pinned regular-session calendar, holidays and early closes.
+    Unscheduled closures still require a current external market-status check.
     """
     tz = ZoneInfo(timezone_name)
-    local_now = now.astimezone(tz) if now.tzinfo else now.replace(tzinfo=tz)
+    session = session_at(now)
+    if session is None:
+        return SessionDecision(False, False, False, "Outside regular exchange session.")
+    local_now = now.astimezone(tz)
     current = local_now.time().replace(tzinfo=None)
 
-    market_open = time(9, 30)
-    market_close = time(16, 0)
-    exit_only = _parse_hhmm(exit_only_start)
-
-    if current < market_open or current >= market_close:
-        return SessionDecision(False, False, False, "Outside regular market hours.")
+    # The same final half-hour exit policy applies to early-close sessions.
+    calendar_exit = (datetime.fromisoformat(session["close"]) - timedelta(minutes=30)).astimezone(tz).time()
+    exit_only = min(_parse_hhmm(exit_only_start), calendar_exit)
 
     if current >= exit_only:
         return SessionDecision(False, True, True, "Exit-only window.")
@@ -53,3 +55,4 @@ def evaluate_market_session(
         return SessionDecision(True, True, False, "Entry window open.")
 
     return SessionDecision(False, True, False, "Monitoring window; new entries disabled.")
+

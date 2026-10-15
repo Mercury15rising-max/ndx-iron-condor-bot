@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from math import isfinite
 from models import OptionQuote
 
 
@@ -12,6 +13,9 @@ class LiquidityRules:
 
 
 def is_liquid(quote: OptionQuote, rules: LiquidityRules) -> bool:
+    if (not all(isfinite(v) for v in (quote.bid, quote.ask))
+            or quote.bid <= 0 or quote.ask < quote.bid):
+        return False
     width = quote.ask - quote.bid
     if quote.bid < rules.min_bid or width > rules.max_bid_ask_width:
         return False
@@ -21,11 +25,13 @@ def is_liquid(quote: OptionQuote, rules: LiquidityRules) -> bool:
         if mid <= 0 or width / mid > rules.max_bid_ask_pct:
             return False
 
-    if quote.open_interest is not None and quote.open_interest < rules.min_open_interest:
-        return False
-
-    if quote.volume is not None and quote.volume < rules.min_volume:
-        return False
+    for value, minimum in ((quote.open_interest, rules.min_open_interest),
+                           (quote.volume, rules.min_volume)):
+        if value is None:
+            if minimum > 0:
+                return False
+        elif not isfinite(value) or value < minimum or value < 0:
+            return False
 
     return True
 
@@ -35,3 +41,4 @@ def filter_liquid_quotes(
     rules: LiquidityRules,
 ) -> list[OptionQuote]:
     return [q for q in quotes if is_liquid(q, rules)]
+

@@ -12,6 +12,7 @@ class FakeVerifiedRobinhoodClient:
                     {
                         "id": "p1",
                         "chain_symbol": "NDXP",
+                        "state": "active", "tradability": "tradable",
                         "expiration_date": "2026-10-16",
                         "strike_price": "30000.0000",
                         "type": "put",
@@ -19,6 +20,7 @@ class FakeVerifiedRobinhoodClient:
                     {
                         "id": "c1",
                         "chain_symbol": "NDXP",
+                        "state": "active", "tradability": "tradable",
                         "expiration_date": "2026-10-16",
                         "strike_price": "31000.0000",
                         "type": "call",
@@ -68,3 +70,4 @@ class VerifiedRobinhoodSchemaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
