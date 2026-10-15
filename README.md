@@ -4,7 +4,7 @@ NDX iron condor trading assistant with risk controls, dry-run execution, Robinho
 
 ## Current status
 
-Live mode is requested in the review branch configuration. `main.py` no longer runs the paper-data demo or order previews. It reports `LIVE_UNAVAILABLE` because supported process authentication and actual order submission are not implemented. This is not a running live bot. No deployment or production setting change has occurred.
+Live mode is requested in the review branch configuration. The read-only startup option has been removed; other modes are rejected. `main.py` no longer runs the paper-data demo or order previews. It reports `LIVE_UNAVAILABLE` because supported process authentication and actual order submission are not implemented. This is not a running live bot. No deployment or production setting change has occurred.
 
 Historical simulation modules and archives remain preserved for research.
 

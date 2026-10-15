@@ -6,32 +6,21 @@ from unittest.mock import patch
 import main
 
 
-class ReadOnlyStartupTests(unittest.TestCase):
-    def test_read_only_does_not_construct_simulator_or_broker(self):
-        settings = SimpleNamespace(trading_mode="read_only", robinhood_live_orders=False)
-        with patch.object(main, "SETTINGS", settings), patch(
-            "paper_market_data.PaperMarketDataProvider",
-            side_effect=AssertionError("Simulator must not run"),
-        ), patch(
-            "broker_robinhood_mcp.RobinhoodMCPBroker",
-            side_effect=AssertionError("Broker must not run"),
-        ), contextlib.redirect_stdout(io.StringIO()) as output:
-            main.main()
-        self.assertIn("authentication is unverified", output.getvalue())
+class LiveStartupTests(unittest.TestCase):
+    def test_non_live_modes_rejected(self):
+        for mode in ("read_only", "paper", "invalid"):
+            for flag in (False, True):
+                with self.subTest(mode=mode, flag=flag), patch.object(
+                    main, "SETTINGS",
+                    SimpleNamespace(trading_mode=mode, robinhood_live_orders=flag),
+                ), self.assertRaisesRegex(SystemExit, "Only live startup"):
+                    main.main()
 
-    def test_old_modes_fail_closed(self):
-        for mode in ("paper", "invalid"):
-            with self.subTest(mode=mode), patch.object(
-                main, "SETTINGS",
-                SimpleNamespace(trading_mode=mode, robinhood_live_orders=False),
-            ), self.assertRaises(SystemExit):
-                main.main()
-
-    def test_live_flag_rejected(self):
+    def test_live_flag_required(self):
         with patch.object(
             main, "SETTINGS",
-            SimpleNamespace(trading_mode="read_only", robinhood_live_orders=True),
-        ), self.assertRaises(SystemExit):
+            SimpleNamespace(trading_mode="live", robinhood_live_orders=False),
+        ), self.assertRaisesRegex(SystemExit, "requires ROBINHOOD_LIVE_ORDERS"):
             main.main()
 
     def test_live_request_reports_transport_unavailable(self):
