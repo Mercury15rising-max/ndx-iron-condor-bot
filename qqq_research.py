@@ -10,6 +10,8 @@ from statistics import mean
 from ema_signals import ema, stamp
 
 VERSION = 'qqq-research-v1'
+QQQ_MAX_TOTAL_LOSS = 450.0
+QQQ_MIN_QUANTITY = 10
 
 
 def trend_report(payload, as_of):
@@ -77,8 +79,12 @@ def total_risk(per_unit_loss, quantity, total_fees, risk_cap):
     if not all(isfinite(v) and v >= 0 for v in (per_unit_loss, total_fees, risk_cap)):
         raise ValueError('Finite nonnegative risk and fees required')
     loss = round(per_unit_loss * quantity + total_fees, 8)
-    return {'quantity': quantity, 'max_loss_including_fees': loss,
-            'risk_cap': risk_cap, 'within_cap': loss <= risk_cap}
+    effective_cap = min(risk_cap, QQQ_MAX_TOTAL_LOSS)
+    return {'quantity': quantity, 'minimum_quantity': QQQ_MIN_QUANTITY,
+            'max_loss_including_fees': loss, 'risk_cap': effective_cap,
+            'within_cap': loss <= effective_cap,
+            'quantity_eligible': quantity >= QQQ_MIN_QUANTITY,
+            'eligible': quantity >= QQQ_MIN_QUANTITY and loss <= effective_cap}
 
 
 def archive_payload(payload, root, source, captured_at):
