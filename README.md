@@ -114,3 +114,11 @@ These symbols remain **context-only**. They are excluded from index-strategy P&L
 Live mode and the live-order configuration flag are enabled in this branch at the user's request. Paper simulation is removed from the default entry point. The broker still has no implemented submission transport, and supported Robinhood authentication is not available inside the bot environment. Startup reports these blockers and exits without sending orders. Existing deployment settings and all archives remain unchanged.
 
 Default per-trade risk, daily realized-loss threshold, and aggregate open-risk limit are $75 each. Environment overrides must be reviewed. These are modeled risk settings, not a guaranteed $75 stop or fee-inclusive loss bound. Fee-inclusive risk, remaining daily budget, durable position reconciliation, verified order schema, and continuous exit handling must be completed before any live order can be executed. Historical experiments retain their own frozen rules and must not be reset or reused as a live ledger.
+
+## QQQ-focused historical research
+
+Use [QQQ_RESEARCH.md](QQQ_RESEARCH.md) and `qqq_research.py` for the new QQQ-only
+historical import, immutable source snapshots, EMA/trend/volatility reports and
+explicit total-position risk calculations. The initial six-month daily dataset
+is included. This offline research path does not change the live startup,
+existing index archives, or deployed service, and does not submit orders.
